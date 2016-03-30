@@ -1,4 +1,4 @@
-package lsi.pryv.epfl.pryvironic.activities;
+package com.pryv.appAndroidExample.activities;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-import lsi.pryv.epfl.pryvironic.R;
+import com.pryv.appAndroidExample.R;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,11 +35,4 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
-    public void discoverBTLE(View view) {
-        startActivity(new Intent(MainActivity.this, BluetoothLEActivity.class));
-    }
-
-    public void discoverBT(View view) {
-        startActivity(new Intent(MainActivity.this, BluetoothActivity.class));
-    }
 }

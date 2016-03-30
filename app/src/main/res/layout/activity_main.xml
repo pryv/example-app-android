@@ -5,18 +5,4 @@
     android:orientation="vertical"
     android:gravity="center_vertical|center_horizontal">
 
-    <Button
-        android:id="@+id/discoverBTLE"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:text="@string/connect_btle"
-        android:onClick="discoverBTLE" />
-
-    <Button
-        android:id="@+id/discoverBT"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:text="@string/connect_bt"
-        android:onClick="discoverBT" />
-
 </LinearLayout>
