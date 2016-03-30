@@ -5,4 +5,15 @@
     android:orientation="vertical"
     android:gravity="center_vertical|center_horizontal">
 
+    <Button
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="@string/add_note"
+        android:onClick="addNote" />
+
+    <TextView
+        android:id="@+id/progress"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+
 </LinearLayout>

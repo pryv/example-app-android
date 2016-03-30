@@ -20,41 +20,50 @@ import java.util.Map;
  * Created by Thieb on 26.02.2016.
  */
 public class AndroidConnection {
-    private static Connection connection = null;
-    private static StreamsCallback streamsCallback = null;
-    private static EventsCallback eventsCallback = null;
-    private Context context;
+    private static Connection connection;
     private TextView progressView;
+    private Event eventToSave;
+    private Stream streamToSave;
+    private String streamMessage = "";
+    private String eventMessage = "";
 
-    public AndroidConnection (Context context, TextView progressView) {
+    public AndroidConnection (TextView progressView) {
         Pryv.deactivateCache();
         Pryv.deactivateSupervisor();
         connection = new Connection(LoginActivity.getUsername(), LoginActivity.getToken(), new DBinitCallback(){});
-        instanciateSCB();
-        instanciateECB();
-        this.context = context;
         this.progressView = progressView;
+        this.progressView.setText("Connection to Pryv initialized!");
     }
 
-    public static void saveEvent(Event event) {
-        connection.createEvent(event, eventsCallback);
+    public void saveEvent(String streamName, String type, String content) {
+        saveStream(streamName);
+        Event event = new Event();
+        event.setStreamId(streamName);
+        event.setType(type);
+        event.setContent(content);
+        eventToSave = event;
+        new SaveEventAsync().execute();
     }
 
-    public static void saveStream(Stream stream) {
-        connection.createStream(stream, streamsCallback);
+    public void saveStream(String streamName) {
+        Stream stream = new Stream();
+        stream.setId(streamName);
+        stream.setName(streamName);
+        streamToSave = stream;
+        new SaveStreamAsync().execute();
     }
 
-    private class SaveEventAsync extends AsyncTask<Event, Void, Void> {
+    private class SaveEventAsync extends AsyncTask<Void, Void, Void> {
 
         @Override
-        protected Void doInBackground(Event... events) {
-            //connection.createEvent(event, eventsCallback);
+        protected Void doInBackground(Void... arg0) {
+            connection.createEvent(eventToSave, eventsCallback);
             return null;
         }
 
         @Override
         protected void onPostExecute(Void result) {
-
+            progressView.setText(eventMessage);
         }
 
     }
@@ -63,22 +72,18 @@ public class AndroidConnection {
 
         @Override
         protected Void doInBackground(Event... events) {
-            for(Event e: events) {
-
-            }
-            //connection.createEvent(event, eventsCallback);
+            connection.createStream(streamToSave, streamsCallback);
             return null;
         }
 
         @Override
         protected void onPostExecute(Void result) {
-
+            progressView.setText(streamMessage);
         }
 
     }
 
-    private static void instanciateECB() {
-        eventsCallback = new EventsCallback() {
+    private EventsCallback eventsCallback = new EventsCallback() {
 
             @Override
             public void onEventsRetrievalSuccess(Map<String, Event> events, Double serverTime) {
@@ -88,28 +93,29 @@ public class AndroidConnection {
             @Override
             public void onEventsRetrievalError(String errorMessage, Double serverTime) {
                 Log.d("Pryv", "onEventsRetrievalError");
+                eventMessage = errorMessage;
             }
 
             @Override
             public void onEventsSuccess(String successMessage, Event event, Integer stoppedId,
                                         Double serverTime) {
                 Log.d("Pryv", "onEventsSuccess");
+                eventMessage = successMessage;
             }
 
             @Override
             public void onEventsError(String errorMessage, Double serverTime) {
                 Log.d("Pryv", "onEventsError");
+                eventMessage = errorMessage;
             }
+    };
 
-        };
-    }
-
-    private static void instanciateSCB() {
-        streamsCallback = new StreamsCallback() {
+    private StreamsCallback streamsCallback = new StreamsCallback() {
 
             @Override
             public void onStreamsSuccess(String successMessage, Stream stream, Double serverTime) {
                 Log.d("Pryv", "onStreamsSuccess");
+                streamMessage = successMessage;
             }
 
             @Override
@@ -120,12 +126,13 @@ public class AndroidConnection {
             @Override
             public void onStreamsRetrievalError(String errorMessage, Double serverTime) {
                 Log.d("Pryv", "onStreamsRetrievalError");
+                streamMessage = errorMessage;
             }
 
             @Override
             public void onStreamError(String errorMessage, Double serverTime) {
                 Log.d("Pryv", "onStreamError");
+                streamMessage = errorMessage;
             }
-        };
-    }
+    };
 }

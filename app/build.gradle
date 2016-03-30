@@ -7,7 +7,7 @@ android {
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
-        applicationId "lsi.pryv.epfl.pryvironic"
+        applicationId "com.pryv.appAndroidExample"
         minSdkVersion 18
         targetSdkVersion 23
         versionCode 1
