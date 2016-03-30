@@ -48,6 +48,21 @@ public class AndroidConnection {
 
         @Override
         protected Void doInBackground(Event... events) {
+            //connection.createEvent(event, eventsCallback);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+
+        }
+
+    }
+
+    private class SaveStreamAsync extends AsyncTask<Event, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Event... events) {
             for(Event e: events) {
 
             }

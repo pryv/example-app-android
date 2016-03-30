@@ -35,11 +35,4 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
-    public void discoverBTLE(View view) {
-        startActivity(new Intent(MainActivity.this, BluetoothLEActivity.class));
-    }
-
-    public void discoverBT(View view) {
-        startActivity(new Intent(MainActivity.this, BluetoothActivity.class));
-    }
 }
