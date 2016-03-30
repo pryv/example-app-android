@@ -1,6 +1,5 @@
 package com.pryv.appAndroidExample.utils;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.TextView;
@@ -35,22 +34,23 @@ public class AndroidConnection {
         this.progressView.setText("Connection to Pryv initialized!");
     }
 
-    public void saveEvent(String streamName, String type, String content) {
-        saveStream(streamName);
+    public void saveEvent(String streamId, String type, String content) {
         Event event = new Event();
-        event.setStreamId(streamName);
+        event.setStreamId(streamId);
         event.setType(type);
         event.setContent(content);
         eventToSave = event;
         new SaveEventAsync().execute();
     }
 
-    public void saveStream(String streamName) {
-        Stream stream = new Stream();
-        stream.setId(streamName);
-        stream.setName(streamName);
-        streamToSave = stream;
-        new SaveStreamAsync().execute();
+    public void saveStream(String streamId, String streamName) {
+        if(!connection.getRootStreams().containsKey(streamId)) {
+            Stream stream = new Stream();
+            stream.setId(streamId);
+            stream.setName(streamName);
+            streamToSave = stream;
+            new SaveStreamAsync().execute();
+        }
     }
 
     private class SaveEventAsync extends AsyncTask<Void, Void, Void> {
@@ -93,12 +93,10 @@ public class AndroidConnection {
             @Override
             public void onEventsRetrievalError(String errorMessage, Double serverTime) {
                 Log.d("Pryv", "onEventsRetrievalError");
-                eventMessage = errorMessage;
             }
 
             @Override
-            public void onEventsSuccess(String successMessage, Event event, Integer stoppedId,
-                                        Double serverTime) {
+            public void onEventsSuccess(String successMessage, Event event, Integer stoppedId, Double serverTime) {
                 Log.d("Pryv", "onEventsSuccess");
                 eventMessage = successMessage;
             }

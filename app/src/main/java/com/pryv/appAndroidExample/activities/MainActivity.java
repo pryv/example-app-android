@@ -6,17 +6,20 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.pryv.appAndroidExample.R;
 import com.pryv.appAndroidExample.utils.AndroidConnection;
 
-import org.w3c.dom.Text;
-
 public class MainActivity extends AppCompatActivity {
 
     private TextView progressView;
+    private EditText noteText;
     private AndroidConnection connection;
+    private static final String NOTE_STREAM_ID = "sampleNotes";
+    private static final String NOTE_STREAM_NAME = "Notes";
+    private static final String NOTE_EVENT_TYPE = "note/txt";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,8 +27,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         progressView = (TextView) findViewById(R.id.progress);
+        noteText = (EditText) findViewById(R.id.note);
 
         connection = new AndroidConnection(progressView);
+        connection.saveStream(NOTE_STREAM_ID, NOTE_STREAM_NAME);
     }
 
     @Override
@@ -47,7 +52,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void addNote(View v) {
-        connection.saveEvent("Test","note/txt","Ceci est un test");
+        String text = noteText.getText().toString();
+        if(!text.isEmpty()) {
+            if(text.length()>20) {
+                progressView.setText("Please make your note shorter (20 characters max)!");
+            } else {
+                noteText.setText("");
+                connection.saveEvent(NOTE_STREAM_ID, NOTE_EVENT_TYPE, text);
+            }
+        } else {
+            progressView.setText("Your note must contain some text!");
+        }
     }
 
 }
