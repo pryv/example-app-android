@@ -1,4 +1,4 @@
-package lsi.pryv.epfl.pryvironic.activities;
+package com.pryv.appAndroidExample.activities;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-import lsi.pryv.epfl.pryvironic.R;
+import com.pryv.appAndroidExample.R;
 
 public class MainActivity extends AppCompatActivity {
 

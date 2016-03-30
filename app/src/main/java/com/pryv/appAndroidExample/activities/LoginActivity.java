@@ -1,4 +1,4 @@
-package lsi.pryv.epfl.pryvironic.activities;
+package com.pryv.appAndroidExample.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -20,7 +20,7 @@ import com.pryv.auth.AuthView;
 
 import java.util.ArrayList;
 
-import lsi.pryv.epfl.pryvironic.R;
+import com.pryv.appAndroidExample.R;
 
 public class LoginActivity extends Activity {
 

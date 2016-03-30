@@ -1,6 +1,9 @@
-package lsi.pryv.epfl.pryvironic.utils;
+package com.pryv.appAndroidExample.utils;
 
+import android.content.Context;
+import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.pryv.Connection;
 import com.pryv.Pryv;
@@ -9,26 +12,28 @@ import com.pryv.api.StreamsCallback;
 import com.pryv.api.database.DBinitCallback;
 import com.pryv.api.model.Event;
 import com.pryv.api.model.Stream;
+import com.pryv.appAndroidExample.activities.LoginActivity;
 
 import java.util.Map;
-
-import lsi.pryv.epfl.pryvironic.activities.LoginActivity;
 
 /**
  * Created by Thieb on 26.02.2016.
  */
-public class Connector {
+public class AndroidConnection {
     private static Connection connection = null;
     private static StreamsCallback streamsCallback = null;
     private static EventsCallback eventsCallback = null;
+    private Context context;
+    private TextView progressView;
 
-    public static void initiateConnection() {
+    public AndroidConnection (Context context, TextView progressView) {
         Pryv.deactivateCache();
         Pryv.deactivateSupervisor();
-        connection = new Connection(LoginActivity.getUsername(), LoginActivity.getToken(), new DBinitCallback() {
-        });
+        connection = new Connection(LoginActivity.getUsername(), LoginActivity.getToken(), new DBinitCallback(){});
         instanciateSCB();
         instanciateECB();
+        this.context = context;
+        this.progressView = progressView;
     }
 
     public static void saveEvent(Event event) {
@@ -37,6 +42,24 @@ public class Connector {
 
     public static void saveStream(Stream stream) {
         connection.createStream(stream, streamsCallback);
+    }
+
+    private class SaveEventAsync extends AsyncTask<Event, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Event... events) {
+            for(Event e: events) {
+
+            }
+            //connection.createEvent(event, eventsCallback);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+
+        }
+
     }
 
     private static void instanciateECB() {

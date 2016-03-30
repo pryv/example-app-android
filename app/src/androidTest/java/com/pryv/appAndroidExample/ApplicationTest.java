@@ -1,4 +1,4 @@
-package lsi.pryv.epfl.pryvironic;
+package com.pryv.appAndroidExample;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
