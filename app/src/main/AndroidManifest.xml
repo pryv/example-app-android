@@ -22,7 +22,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.MonitoringActivity" />
         <activity android:name=".activities.BluetoothActivity" />
         <activity android:name=".activities.BluetoothLEActivity" />
         <activity android:name=".activities.ChatActivity" />
