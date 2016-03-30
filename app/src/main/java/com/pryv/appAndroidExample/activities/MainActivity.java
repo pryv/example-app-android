@@ -6,11 +6,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import com.pryv.api.model.Event;
 import com.pryv.appAndroidExample.R;
 import com.pryv.appAndroidExample.utils.AndroidConnection;
+
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String NOTE_STREAM_ID = "sampleNotes";
     private static final String NOTE_STREAM_NAME = "Notes";
     private static final String NOTE_EVENT_TYPE = "note/txt";
+    private ListView notesList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,8 +34,9 @@ public class MainActivity extends AppCompatActivity {
 
         progressView = (TextView) findViewById(R.id.progress);
         noteText = (EditText) findViewById(R.id.note);
+        notesList = (ListView) findViewById(R.id.notes_list);
 
-        connection = new AndroidConnection(progressView);
+        connection = new AndroidConnection(progressView, notesList, this);
         connection.saveStream(NOTE_STREAM_ID, NOTE_STREAM_NAME);
     }
 
