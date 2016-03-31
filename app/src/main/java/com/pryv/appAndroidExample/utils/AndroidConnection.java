@@ -17,9 +17,8 @@ import com.pryv.api.model.Event;
 import com.pryv.api.model.Stream;
 import com.pryv.appAndroidExample.R;
 import com.pryv.appAndroidExample.activities.LoginActivity;
-import com.pryv.appAndroidExample.activities.MainActivity;
 
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -33,7 +32,7 @@ public class AndroidConnection {
     private String streamMessage = "";
     private String eventMessage = "";
     private Filter filter;
-    private Map<String, Event> retrievedEvents;
+    private ArrayList <String> retrievedEvents;
     private Context context;
     private ListView eventsList;
 
@@ -45,6 +44,8 @@ public class AndroidConnection {
         this.progressView.setText("Connection to Pryv initialized!");
         this.context = context;
         this.eventsList = eventsList;
+        retrievedEvents = new ArrayList<>();
+        filter = new Filter();
     }
 
     public void saveEvent(String streamId, String type, String content) {
@@ -66,12 +67,15 @@ public class AndroidConnection {
         }
     }
 
-    public void getEvents(String streamId, String type) {
-        retrievedEvents = null;
-        filter = new Filter();
+    public void retrieveEvents(String streamId, String type) {
         filter.addStreamId(streamId);
         filter.addType(type);
         new RetrieveEventAsync().execute();
+    }
+
+    private void updateList() {
+        ArrayAdapter<String> adapter = new ArrayAdapter(context, R.layout.list_item, retrievedEvents);
+        eventsList.setAdapter(adapter);
     }
 
     private class RetrieveEventAsync extends AsyncTask<Void, Void, Void> {
@@ -84,13 +88,10 @@ public class AndroidConnection {
 
         @Override
         protected void onPostExecute(Void result) {
-            if(retrievedEvents!=null) {
-                String[] events = retrievedEvents.values().toArray(new String[retrievedEvents.values().size()]);
-                ArrayAdapter<String> adapter = new ArrayAdapter(context, R.layout.list_item, events);
-                eventsList.setAdapter(adapter);
-            } else {
-                progressView.setText("No event to retrieve!");
+            if(retrievedEvents.size()>0) {
+                updateList();
             }
+            progressView.setText(eventMessage);
         }
 
     }
@@ -106,6 +107,8 @@ public class AndroidConnection {
         @Override
         protected void onPostExecute(Void result) {
             progressView.setText(eventMessage);
+            retrievedEvents.add(eventToSave.getContent().toString());
+            updateList();
         }
 
     }
@@ -130,8 +133,9 @@ public class AndroidConnection {
             @Override
             public void onEventsRetrievalSuccess(Map<String, Event> events, Double serverTime) {
                 Log.d("Pryv", "onEventsRetrievalSuccess");
-                eventMessage = "New events retrieved!";
-                retrievedEvents = events;
+                for(String e: events.keySet()) {
+                    retrievedEvents.add(e);
+                }
             }
 
             @Override
@@ -144,7 +148,6 @@ public class AndroidConnection {
             public void onEventsSuccess(String successMessage, Event event, Integer stoppedId, Double serverTime) {
                 Log.d("Pryv", "onEventsSuccess");
                 eventMessage = successMessage;
-                getEvents(event.getStreamId(),event.getType());
             }
 
             @Override

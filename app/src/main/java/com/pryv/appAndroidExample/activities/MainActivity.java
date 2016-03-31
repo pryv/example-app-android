@@ -6,16 +6,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.pryv.api.model.Event;
 import com.pryv.appAndroidExample.R;
 import com.pryv.appAndroidExample.utils.AndroidConnection;
-
-import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -38,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
         connection = new AndroidConnection(progressView, notesList, this);
         connection.saveStream(NOTE_STREAM_ID, NOTE_STREAM_NAME);
+        connection.retrieveEvents(NOTE_STREAM_ID, NOTE_EVENT_TYPE);
     }
 
     @Override
