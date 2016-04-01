@@ -36,7 +36,6 @@ public class AndroidConnection {
 
     public AndroidConnection (TextView progressView, ListView eventsList, Context context) {
         Pryv.deactivateCache();
-        Pryv.deactivateSupervisor();
         connection = new Connection(LoginActivity.getUsername(), LoginActivity.getToken(), new DBinitCallback(){});
         this.progressView = progressView;
         this.progressView.setText("Connection to Pryv initialized!");
