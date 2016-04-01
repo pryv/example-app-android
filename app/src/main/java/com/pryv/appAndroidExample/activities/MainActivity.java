@@ -27,6 +27,7 @@ import com.pryv.api.model.Event;
 import com.pryv.appAndroidExample.R;
 import com.pryv.appAndroidExample.utils.AndroidConnection;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
@@ -39,7 +40,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String NOTE_EVENT_TYPE = "note/txt";
     private ListView notesList;
 
-    private Handler handler;
+    private Handler noteCreationHandler;
+    private Handler noteRetrievalHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         noteText = (EditText) findViewById(R.id.note);
         notesList = (ListView) findViewById(R.id.notes_list);
 
-        connection = new AndroidConnection(progressView, notesList, this, handler);
+        connection = new AndroidConnection(noteCreationHandler, noteRetrievalHandler);
         connection.saveStream(NOTE_STREAM_ID, NOTE_STREAM_NAME);
     }
 
@@ -80,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
             if(text.length()>20) {
                 progressView.setText("Please make your note shorter (20 characters max)!");
             } else {
-                LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("my-event"));
                 noteText.setText("");
                 connection.saveEvent(NOTE_STREAM_ID,NOTE_EVENT_TYPE,text);
             }
@@ -89,30 +90,27 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String message = intent.getStringExtra("message");
-            Toast.makeText(MainActivity.this,message,Toast.LENGTH_SHORT).show();
-        }
-    };
-
     public void retrieveNotes(View v) {
         connection.retrieveEvents(NOTE_STREAM_ID, NOTE_EVENT_TYPE);
     }
 
     private void setHandler() {
-        handler = new Handler() {
-
+        noteCreationHandler = new Handler() {
             public void handleMessage(Message msg) {
                 Bundle b = msg.getData();
-                noteText.setText("myEvent:" + b.get("event"));
+                progressView.setText(b.getString("notification"));
+            }
+        };
+
+        noteRetrievalHandler = new Handler() {
+            public void handleMessage(Message msg) {
+                Bundle b = msg.getData();
+                ArrayList<String> retrievedEvents = b.getStringArrayList("events");
+                ArrayAdapter<String> adapter = new ArrayAdapter(MainActivity.this, R.layout.list_item, retrievedEvents);
+                notesList.setAdapter(adapter);
+                progressView.setText("All notes retrieved!");
             }
         };
     }
-    
-    private void updateList() {
-        //ArrayAdapter<String> adapter = new ArrayAdapter(context, R.layout.list_item, retrievedEvents);
-        //eventsList.setAdapter(adapter);
-    }
+
 }

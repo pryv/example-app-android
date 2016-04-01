@@ -1,16 +1,9 @@
 package com.pryv.appAndroidExample.utils;
 
-import android.content.Context;
-import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import com.pryv.Connection;
 import com.pryv.Pryv;
@@ -20,7 +13,6 @@ import com.pryv.api.StreamsCallback;
 import com.pryv.api.database.DBinitCallback;
 import com.pryv.api.model.Event;
 import com.pryv.api.model.Stream;
-import com.pryv.appAndroidExample.R;
 import com.pryv.appAndroidExample.activities.LoginActivity;
 
 import java.util.ArrayList;
@@ -31,22 +23,15 @@ import java.util.Map;
  */
 public class AndroidConnection {
     private static Connection connection;
-    private TextView progressView;
-    private String currentMessage = "";
-    private ArrayList <String> retrievedEvents;
-    private Context context;
-    private ListView eventsList;
-    private Handler handler;
+    private Handler creationHandler;
+    private Handler retrievalHandler;
 
-    public AndroidConnection (TextView progressView, ListView eventsList, Context context, Handler handler) {
+    public AndroidConnection (Handler creationHandler, Handler retrievalHandler) {
         Pryv.deactivateCache();
         Pryv.deactivateSupervisor();
-        this.handler = handler;
+        this.creationHandler = creationHandler;
+        this.retrievalHandler = retrievalHandler;
         connection = new Connection(LoginActivity.getUsername(), LoginActivity.getToken(), new DBinitCallback(){});
-        this.progressView = progressView;
-        this.progressView.setText("Connection to Pryv initialized!");
-        this.context = context;
-        this.eventsList = eventsList;
     }
 
     public void saveEvent(String streamId, String type, String content) {
@@ -54,46 +39,39 @@ public class AndroidConnection {
         event.setStreamId(streamId);
         event.setType(type);
         event.setContent(content);
-        connection.createEvent(event, new EventsCallback() {
-            @Override
-            public void onEventsRetrievalSuccess(Map<String, Event> map, Double aDouble) {
-
-            }
-
-            @Override
-            public void onEventsRetrievalError(String s, Double aDouble) {
-
-            }
-
-            @Override
-            public void onEventsSuccess(String s, Event event, Integer integer, Double aDouble) {
-                Bundle b = new Bundle();
-                b.putString("event", "id=" + event.getId() + ", streamID=" + event.getStreamId() + ", type=" + event.getType() + ", content=" + event.getContent() + "");
-                Message msg = new Message();
-                msg.setData(b);
-                handler.sendMessage(msg);
-            }
-
-            @Override
-            public void onEventsError(String s, Double aDouble) {
-
-            }
-        });
-        //new SaveEventAsync().execute(event);
+        connection.createEvent(event, eventsCallback);
     }
 
     public void saveStream(String streamId, String streamName) {
         Stream stream = new Stream();
         stream.setId(streamId);
         stream.setName(streamName);
-        connection.createStream(stream,streamsCallback);
+        connection.createStream(stream, streamsCallback);
     }
 
     public void retrieveEvents(String streamId, String type) {
         Filter filter = new Filter();
         filter.addStreamId(streamId);
         filter.addType(type);
-        connection.getEvents(filter,eventsCallback);
+        connection.getEvents(filter, eventsCallback);
+    }
+
+    private void notifyUI(String notification) {
+        Bundle b = new Bundle();
+        b.putString("notification", notification);
+        Message msg = new Message();
+        msg.setData(b);
+        creationHandler.sendMessage(msg);
+    }
+
+    private void notifyUI(Map<String, Event> events) {
+        Bundle b = new Bundle();
+        ArrayList<String> retrievedEvents = new ArrayList<>();
+        retrievedEvents.addAll(events.keySet());
+        b.putStringArrayList("events",retrievedEvents);
+        Message msg = new Message();
+        msg.setData(b);
+        retrievalHandler.sendMessage(msg);
     }
 
     private EventsCallback eventsCallback = new EventsCallback() {
@@ -101,28 +79,25 @@ public class AndroidConnection {
             @Override
             public void onEventsRetrievalSuccess(Map<String, Event> events, Double serverTime) {
                 Log.d("Pryv", "onEventsRetrievalSuccess");
-                for(String e: events.keySet()) {
-                    retrievedEvents.add(e);
-                }
+                notifyUI(events);
             }
 
             @Override
             public void onEventsRetrievalError(String errorMessage, Double serverTime) {
                 Log.d("Pryv", "onEventsRetrievalError");
-                currentMessage = errorMessage;
+                notifyUI(errorMessage);
             }
 
             @Override
             public void onEventsSuccess(String successMessage, Event event, Integer stoppedId, Double serverTime) {
-                Intent intent = new Intent("my-event");
-                intent.putExtra("message", "data");
-                LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                Log.d("Pryv", successMessage);
+                notifyUI("New event created: id=" + event.getId() + ", streamID=" + event.getStreamId() + ", type=" + event.getType() + ", content=" + event.getContent());
             }
 
             @Override
             public void onEventsError(String errorMessage, Double serverTime) {
                 Log.d("Pryv", "onEventsError");
-                currentMessage = errorMessage;
+                notifyUI(errorMessage);
             }
     };
 
