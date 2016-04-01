@@ -30,7 +30,6 @@ public class AndroidConnection {
     private Event eventToSave;
     private Stream streamToSave;
     private String currentMessage = "";
-    private Filter filter;
     private ArrayList <String> retrievedEvents;
     private Context context;
     private ListView eventsList;
@@ -43,7 +42,6 @@ public class AndroidConnection {
         this.progressView.setText("Connection to Pryv initialized!");
         this.context = context;
         this.eventsList = eventsList;
-        filter = new Filter();
     }
 
     public void saveEvent(String streamId, String type, String content) {
@@ -66,9 +64,10 @@ public class AndroidConnection {
     }
 
     public void retrieveEvents(String streamId, String type) {
+        Filter filter = new Filter();
         filter.addStreamId(streamId);
         filter.addType(type);
-        new RetrieveEventAsync().execute();
+        new RetrieveEventAsync().execute(filter);
     }
 
     private void updateList() {
@@ -76,12 +75,12 @@ public class AndroidConnection {
         eventsList.setAdapter(adapter);
     }
 
-    private class RetrieveEventAsync extends AsyncTask<Void, Void, Void> {
+    private class RetrieveEventAsync extends AsyncTask<Filter, Void, Void> {
 
         @Override
-        protected Void doInBackground(Void... arg0) {
+        protected Void doInBackground(Filter... filters) {
             retrievedEvents = new ArrayList<>();
-            connection.getEvents(filter, eventsCallback);
+            connection.getEvents(filters[0], eventsCallback);
             return null;
         }
 
