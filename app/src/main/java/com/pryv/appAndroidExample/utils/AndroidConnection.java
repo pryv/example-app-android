@@ -34,7 +34,6 @@ public class AndroidConnection {
     private ArrayList <String> retrievedEvents;
     private Context context;
     private ListView eventsList;
-    private ProgressMessage progressMessage;
 
     public AndroidConnection (TextView progressView, ListView eventsList, Context context) {
         Pryv.deactivateCache();
@@ -45,7 +44,6 @@ public class AndroidConnection {
         this.context = context;
         this.eventsList = eventsList;
         filter = new Filter();
-        progressMessage = new ProgressMessage();
     }
 
     public void saveEvent(String streamId, String type, String content) {
@@ -140,13 +138,13 @@ public class AndroidConnection {
             @Override
             public void onEventsRetrievalError(String errorMessage, Double serverTime) {
                 Log.d("Pryv", "onEventsRetrievalError");
-                progressMessage.setProgressMessage(errorMessage);
+                currentMessage = errorMessage;
             }
 
             @Override
             public void onEventsSuccess(String successMessage, Event event, Integer stoppedId, Double serverTime) {
                 Log.d("Pryv", "onEventsSuccess");
-                progressMessage.setProgressMessage(successMessage);
+                currentMessage = successMessage;
             }
 
             @Override
@@ -183,12 +181,4 @@ public class AndroidConnection {
             }
     };
 
-    private class ProgressMessage {
-        private String message="";
-
-        public void setProgressMessage(String message) {
-            this.message = message;
-            progressView.setText(message);
-        }
-    }
 }
