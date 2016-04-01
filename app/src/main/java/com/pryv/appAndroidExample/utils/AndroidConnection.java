@@ -34,6 +34,7 @@ public class AndroidConnection {
 
     public AndroidConnection (TextView progressView, ListView eventsList, Context context) {
         Pryv.deactivateCache();
+        Pryv.deactivateSupervisor();
         connection = new Connection(LoginActivity.getUsername(), LoginActivity.getToken(), new DBinitCallback(){});
         this.progressView = progressView;
         this.progressView.setText("Connection to Pryv initialized!");
@@ -70,36 +71,37 @@ public class AndroidConnection {
         eventsList.setAdapter(adapter);
     }
 
-    private class RetrieveEventAsync extends AsyncTask<Filter, Void, Void> {
+    private class RetrieveEventAsync extends AsyncTask<Filter, Void, String> {
 
         @Override
-        protected Void doInBackground(Filter... filters) {
+        protected String doInBackground(Filter... filters) {
             retrievedEvents = new ArrayList<>();
             connection.getEvents(filters[0], eventsCallback);
-            return null;
+            return currentMessage;
         }
 
         @Override
-        protected void onPostExecute(Void result) {
+        protected void onPostExecute(String result) {
             if(retrievedEvents.size()>0) {
                 updateList();
             }
-            progressView.setText(currentMessage);
+            progressView.setText(result);
         }
 
     }
 
-    private class SaveEventAsync extends AsyncTask<Event, Void, Void> {
+    private class SaveEventAsync extends AsyncTask<Event, Void, String> {
 
         @Override
-        protected Void doInBackground(Event... events) {
+        protected String doInBackground(Event... events) {
+            Log.d("Pryv", ""+events.length);
             connection.createEvent(events[0], eventsCallback);
-            return null;
+            return currentMessage;
         }
 
         @Override
-        protected void onPostExecute(Void result) {
-            progressView.setText(currentMessage);
+        protected void onPostExecute(String result) {
+            progressView.setText(result);
         }
 
     }
@@ -114,7 +116,7 @@ public class AndroidConnection {
 
         @Override
         protected void onPostExecute(Void result) {
-            progressView.setText(currentMessage);
+
         }
 
     }
@@ -153,25 +155,21 @@ public class AndroidConnection {
             @Override
             public void onStreamsSuccess(String successMessage, Stream stream, Double serverTime) {
                 Log.d("Pryv", "onStreamsSuccess");
-                currentMessage = successMessage;
             }
 
             @Override
             public void onStreamsRetrievalSuccess(Map<String, Stream> streams, Double serverTime) {
                 Log.d("Pryv", "onStreamsRetrievalSuccess");
-                currentMessage = "Stream retrieved!";
             }
 
             @Override
             public void onStreamsRetrievalError(String errorMessage, Double serverTime) {
                 Log.d("Pryv", "onStreamsRetrievalError");
-                currentMessage = errorMessage;
             }
 
             @Override
             public void onStreamError(String errorMessage, Double serverTime) {
                 Log.d("Pryv", "onStreamError");
-                currentMessage = errorMessage;
             }
     };
 
