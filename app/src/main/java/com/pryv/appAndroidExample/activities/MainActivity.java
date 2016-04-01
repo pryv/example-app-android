@@ -1,17 +1,31 @@
 package com.pryv.appAndroidExample.activities;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.pryv.Connection;
+import com.pryv.Pryv;
+import com.pryv.api.EventsCallback;
+import com.pryv.api.database.DBinitCallback;
+import com.pryv.api.model.Event;
 import com.pryv.appAndroidExample.R;
 import com.pryv.appAndroidExample.utils.AndroidConnection;
+
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -60,15 +74,29 @@ public class MainActivity extends AppCompatActivity {
             if(text.length()>20) {
                 progressView.setText("Please make your note shorter (20 characters max)!");
             } else {
+                LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("my-event"));
                 noteText.setText("");
-                connection.saveEvent(NOTE_STREAM_ID, NOTE_EVENT_TYPE, text);
+                connection.saveEvent(NOTE_STREAM_ID,NOTE_EVENT_TYPE,text);
             }
         } else {
             progressView.setText("Your note must contain some text!");
         }
     }
 
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String message = intent.getStringExtra("message");
+            Toast.makeText(MainActivity.this,message,Toast.LENGTH_SHORT).show();
+        }
+    };
+
     public void retrieveNotes(View v) {
         connection.retrieveEvents(NOTE_STREAM_ID, NOTE_EVENT_TYPE);
+    }
+
+    private void updateList() {
+        //ArrayAdapter<String> adapter = new ArrayAdapter(context, R.layout.list_item, retrievedEvents);
+        //eventsList.setAdapter(adapter);
     }
 }
