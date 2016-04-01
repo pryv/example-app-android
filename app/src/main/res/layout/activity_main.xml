@@ -16,6 +16,13 @@
         android:onClick="addNote"
         android:layout_gravity="center_horizontal" />
 
+    <Button
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="@string/retrieve_notes"
+        android:onClick="retrieveNotes"
+        android:layout_gravity="center_horizontal" />
+
     <EditText
         android:id="@+id/note"
         android:layout_width="fill_parent"

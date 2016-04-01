@@ -29,12 +29,12 @@ public class AndroidConnection {
     private TextView progressView;
     private Event eventToSave;
     private Stream streamToSave;
-    private String streamMessage = "";
-    private String eventMessage = "";
+    private String currentMessage = "";
     private Filter filter;
     private ArrayList <String> retrievedEvents;
     private Context context;
     private ListView eventsList;
+    private ProgressMessage progressMessage;
 
     public AndroidConnection (TextView progressView, ListView eventsList, Context context) {
         Pryv.deactivateCache();
@@ -44,8 +44,8 @@ public class AndroidConnection {
         this.progressView.setText("Connection to Pryv initialized!");
         this.context = context;
         this.eventsList = eventsList;
-        retrievedEvents = new ArrayList<>();
         filter = new Filter();
+        progressMessage = new ProgressMessage();
     }
 
     public void saveEvent(String streamId, String type, String content) {
@@ -82,6 +82,7 @@ public class AndroidConnection {
 
         @Override
         protected Void doInBackground(Void... arg0) {
+            retrievedEvents = new ArrayList<>();
             connection.getEvents(filter, eventsCallback);
             return null;
         }
@@ -91,7 +92,7 @@ public class AndroidConnection {
             if(retrievedEvents.size()>0) {
                 updateList();
             }
-            progressView.setText(eventMessage);
+
         }
 
     }
@@ -106,9 +107,7 @@ public class AndroidConnection {
 
         @Override
         protected void onPostExecute(Void result) {
-            progressView.setText(eventMessage);
-            retrievedEvents.add(eventToSave.getContent().toString());
-            updateList();
+
         }
 
     }
@@ -123,7 +122,7 @@ public class AndroidConnection {
 
         @Override
         protected void onPostExecute(Void result) {
-            progressView.setText(streamMessage);
+
         }
 
     }
@@ -141,19 +140,19 @@ public class AndroidConnection {
             @Override
             public void onEventsRetrievalError(String errorMessage, Double serverTime) {
                 Log.d("Pryv", "onEventsRetrievalError");
-                eventMessage = errorMessage;
+                progressMessage.setProgressMessage(errorMessage);
             }
 
             @Override
             public void onEventsSuccess(String successMessage, Event event, Integer stoppedId, Double serverTime) {
                 Log.d("Pryv", "onEventsSuccess");
-                eventMessage = successMessage;
+                progressMessage.setProgressMessage(successMessage);
             }
 
             @Override
             public void onEventsError(String errorMessage, Double serverTime) {
                 Log.d("Pryv", "onEventsError");
-                eventMessage = errorMessage;
+                currentMessage = errorMessage;
             }
     };
 
@@ -162,25 +161,34 @@ public class AndroidConnection {
             @Override
             public void onStreamsSuccess(String successMessage, Stream stream, Double serverTime) {
                 Log.d("Pryv", "onStreamsSuccess");
-                streamMessage = successMessage;
+                currentMessage = successMessage;
             }
 
             @Override
             public void onStreamsRetrievalSuccess(Map<String, Stream> streams, Double serverTime) {
                 Log.d("Pryv", "onStreamsRetrievalSuccess");
-                streamMessage = "Stream retrieved!";
+                currentMessage = "Stream retrieved!";
             }
 
             @Override
             public void onStreamsRetrievalError(String errorMessage, Double serverTime) {
                 Log.d("Pryv", "onStreamsRetrievalError");
-                streamMessage = errorMessage;
+                currentMessage = errorMessage;
             }
 
             @Override
             public void onStreamError(String errorMessage, Double serverTime) {
                 Log.d("Pryv", "onStreamError");
-                streamMessage = errorMessage;
+                currentMessage = errorMessage;
             }
     };
+
+    private class ProgressMessage {
+        private String message="";
+
+        public void setProgressMessage(String message) {
+            this.message = message;
+            progressView.setText(message);
+        }
+    }
 }

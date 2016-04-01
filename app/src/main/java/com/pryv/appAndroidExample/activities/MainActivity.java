@@ -34,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
 
         connection = new AndroidConnection(progressView, notesList, this);
         connection.saveStream(NOTE_STREAM_ID, NOTE_STREAM_NAME);
-        connection.retrieveEvents(NOTE_STREAM_ID, NOTE_EVENT_TYPE);
     }
 
     @Override
@@ -69,4 +68,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void retrieveNotes(View v) {
+        connection.retrieveEvents(NOTE_STREAM_ID, NOTE_EVENT_TYPE);
+    }
 }
