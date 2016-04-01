@@ -94,7 +94,6 @@ public class AndroidConnection {
 
         @Override
         protected String doInBackground(Event... events) {
-            Log.d("Pryv", ""+events.length);
             connection.createEvent(events[0], eventsCallback);
             return currentMessage;
         }
