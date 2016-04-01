@@ -29,7 +29,7 @@ public class AndroidConnection {
 
     public AndroidConnection (Handler creationHandler, Handler retrievalHandler) {
         Pryv.deactivateCache();
-        Pryv.deactivateSupervisor();
+        //Pryv.deactivateSupervisor();
 
         this.creationHandler = creationHandler;
         this.retrievalHandler = retrievalHandler;
@@ -91,7 +91,7 @@ public class AndroidConnection {
 
     /**
      * Notify the MainActivity to update its events list
-     * @param events: the list of events retrieveds
+     * @param events: the list of events retrieved
      */
     private void notifyUI(Map<String, Event> events) {
         Bundle b = new Bundle();
