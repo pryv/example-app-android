@@ -2,6 +2,9 @@ package com.pryv.appAndroidExample.utils;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -31,10 +34,12 @@ public class AndroidConnection {
     private ArrayList <String> retrievedEvents;
     private Context context;
     private ListView eventsList;
+    private Handler handler;
 
-    public AndroidConnection (TextView progressView, ListView eventsList, Context context) {
+    public AndroidConnection (TextView progressView, ListView eventsList, Context context, Handler handler) {
         Pryv.deactivateCache();
         Pryv.deactivateSupervisor();
+        this.handler = handler;
         connection = new Connection(LoginActivity.getUsername(), LoginActivity.getToken(), new DBinitCallback(){});
         this.progressView = progressView;
         this.progressView.setText("Connection to Pryv initialized!");
@@ -47,7 +52,32 @@ public class AndroidConnection {
         event.setStreamId(streamId);
         event.setType(type);
         event.setContent(content);
-        new SaveEventAsync().execute(event);
+        connection.createEvent(event, new EventsCallback() {
+            @Override
+            public void onEventsRetrievalSuccess(Map<String, Event> map, Double aDouble) {
+
+            }
+
+            @Override
+            public void onEventsRetrievalError(String s, Double aDouble) {
+
+            }
+
+            @Override
+            public void onEventsSuccess(String s, Event event, Integer integer, Double aDouble) {
+                Bundle b = new Bundle();
+                b.putString("event", "id=" + event.getId() + ", streamID=" + event.getStreamId() + ", type=" + event.getType() + ", content=" + event.getContent() + "");
+                Message msg = new Message();
+                msg.setData(b);
+                handler.sendMessage(msg);
+            }
+
+            @Override
+            public void onEventsError(String s, Double aDouble) {
+
+            }
+        });
+        //new SaveEventAsync().execute(event);
     }
 
     public void saveStream(String streamId, String streamName) {

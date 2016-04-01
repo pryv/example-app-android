@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
@@ -23,16 +25,20 @@ public class MainActivity extends AppCompatActivity {
     private static final String NOTE_EVENT_TYPE = "note/txt";
     private ListView notesList;
 
+    private Handler handler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        setHandler();
+
         progressView = (TextView) findViewById(R.id.progress);
         noteText = (EditText) findViewById(R.id.note);
         notesList = (ListView) findViewById(R.id.notes_list);
 
-        connection = new AndroidConnection(progressView, notesList, this);
+        connection = new AndroidConnection(progressView, notesList, this, handler);
         connection.saveStream(NOTE_STREAM_ID, NOTE_STREAM_NAME);
     }
 
@@ -70,5 +76,15 @@ public class MainActivity extends AppCompatActivity {
 
     public void retrieveNotes(View v) {
         connection.retrieveEvents(NOTE_STREAM_ID, NOTE_EVENT_TYPE);
+    }
+
+    private void setHandler() {
+        handler = new Handler() {
+
+            public void handleMessage(Message msg) {
+                Bundle b = msg.getData();
+                noteText.setText("myEvent:" + b.get("event"));
+            }
+        };
     }
 }
