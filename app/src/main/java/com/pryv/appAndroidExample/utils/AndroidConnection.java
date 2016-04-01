@@ -27,8 +27,6 @@ import java.util.Map;
 public class AndroidConnection {
     private static Connection connection;
     private TextView progressView;
-    private Event eventToSave;
-    private Stream streamToSave;
     private String currentMessage = "";
     private ArrayList <String> retrievedEvents;
     private Context context;
@@ -48,8 +46,7 @@ public class AndroidConnection {
         event.setStreamId(streamId);
         event.setType(type);
         event.setContent(content);
-        eventToSave = event;
-        new SaveEventAsync().execute();
+        new SaveEventAsync().execute(event);
     }
 
     public void saveStream(String streamId, String streamName) {
@@ -57,8 +54,7 @@ public class AndroidConnection {
             Stream stream = new Stream();
             stream.setId(streamId);
             stream.setName(streamName);
-            streamToSave = stream;
-            new SaveStreamAsync().execute();
+            new SaveStreamAsync().execute(stream);
         }
     }
 
@@ -93,11 +89,11 @@ public class AndroidConnection {
 
     }
 
-    private class SaveEventAsync extends AsyncTask<Void, Void, Void> {
+    private class SaveEventAsync extends AsyncTask<Event, Void, Void> {
 
         @Override
-        protected Void doInBackground(Void... arg0) {
-            connection.createEvent(eventToSave, eventsCallback);
+        protected Void doInBackground(Event... events) {
+            connection.createEvent(events[0], eventsCallback);
             return null;
         }
 
@@ -108,11 +104,11 @@ public class AndroidConnection {
 
     }
 
-    private class SaveStreamAsync extends AsyncTask<Event, Void, Void> {
+    private class SaveStreamAsync extends AsyncTask<Stream, Void, Void> {
 
         @Override
-        protected Void doInBackground(Event... events) {
-            connection.createStream(streamToSave, streamsCallback);
+        protected Void doInBackground(Stream... streams) {
+            connection.createStream(streams[0], streamsCallback);
             return null;
         }
 
