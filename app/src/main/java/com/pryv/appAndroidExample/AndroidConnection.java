@@ -119,7 +119,7 @@ public class AndroidConnection {
 
             @Override
             public void onEventsRetrievalError(String errorMessage, Double serverTime) {
-                Log.d("Pryv", "onEventsRetrievalError");
+                Log.d("Pryv", errorMessage);
                 notifyUI(errorMessage);
             }
 
@@ -131,7 +131,7 @@ public class AndroidConnection {
 
             @Override
             public void onEventsError(String errorMessage, Double serverTime) {
-                Log.d("Pryv", "onEventsError");
+                Log.d("Pryv", errorMessage);
                 notifyUI(errorMessage);
             }
         };
@@ -141,7 +141,7 @@ public class AndroidConnection {
 
             @Override
             public void onStreamsSuccess(String successMessage, Stream stream, Double serverTime) {
-                Log.d("Pryv", "onStreamsSuccess");
+                Log.d("Pryv", successMessage);
             }
 
             @Override
@@ -151,12 +151,12 @@ public class AndroidConnection {
 
             @Override
             public void onStreamsRetrievalError(String errorMessage, Double serverTime) {
-                Log.d("Pryv", "onStreamsRetrievalError");
+                Log.d("Pryv", errorMessage);
             }
 
             @Override
             public void onStreamError(String errorMessage, Double serverTime) {
-                Log.d("Pryv", "onStreamError");
+                Log.d("Pryv", errorMessage);
             }
         };
 
