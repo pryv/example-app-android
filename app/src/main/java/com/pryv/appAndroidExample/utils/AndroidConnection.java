@@ -1,10 +1,12 @@
 package com.pryv.appAndroidExample.utils;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -81,73 +83,17 @@ public class AndroidConnection {
     }
 
     public void saveStream(String streamId, String streamName) {
-        if(!connection.getRootStreams().containsKey(streamId)) {
-            Stream stream = new Stream();
-            stream.setId(streamId);
-            stream.setName(streamName);
-            new SaveStreamAsync().execute(stream);
-        }
+        Stream stream = new Stream();
+        stream.setId(streamId);
+        stream.setName(streamName);
+        connection.createStream(stream,streamsCallback);
     }
 
     public void retrieveEvents(String streamId, String type) {
         Filter filter = new Filter();
         filter.addStreamId(streamId);
         filter.addType(type);
-        new RetrieveEventAsync().execute(filter);
-    }
-
-    private void updateList() {
-        ArrayAdapter<String> adapter = new ArrayAdapter(context, R.layout.list_item, retrievedEvents);
-        eventsList.setAdapter(adapter);
-    }
-
-    private class RetrieveEventAsync extends AsyncTask<Filter, Void, String> {
-
-        @Override
-        protected String doInBackground(Filter... filters) {
-            retrievedEvents = new ArrayList<>();
-            connection.getEvents(filters[0], eventsCallback);
-            return currentMessage;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            if(retrievedEvents.size()>0) {
-                updateList();
-            }
-            progressView.setText(result);
-        }
-
-    }
-
-    private class SaveEventAsync extends AsyncTask<Event, Void, String> {
-
-        @Override
-        protected String doInBackground(Event... events) {
-            connection.createEvent(events[0], eventsCallback);
-            return currentMessage;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            progressView.setText(result);
-        }
-
-    }
-
-    private class SaveStreamAsync extends AsyncTask<Stream, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Stream... streams) {
-            connection.createStream(streams[0], streamsCallback);
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-
-        }
-
+        connection.getEvents(filter,eventsCallback);
     }
 
     private EventsCallback eventsCallback = new EventsCallback() {
@@ -168,8 +114,9 @@ public class AndroidConnection {
 
             @Override
             public void onEventsSuccess(String successMessage, Event event, Integer stoppedId, Double serverTime) {
-                Log.d("Pryv", "onEventsSuccess");
-                currentMessage = successMessage;
+                Intent intent = new Intent("my-event");
+                intent.putExtra("message", "data");
+                LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
             }
 
             @Override
