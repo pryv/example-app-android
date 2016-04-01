@@ -84,7 +84,7 @@ public class AndroidConnection {
             if(retrievedEvents.size()>0) {
                 updateList();
             }
-
+            progressView.setText(currentMessage);
         }
 
     }
@@ -99,7 +99,7 @@ public class AndroidConnection {
 
         @Override
         protected void onPostExecute(Void result) {
-
+            progressView.setText(currentMessage);
         }
 
     }
@@ -114,7 +114,7 @@ public class AndroidConnection {
 
         @Override
         protected void onPostExecute(Void result) {
-
+            progressView.setText(currentMessage);
         }
 
     }
