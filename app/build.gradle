@@ -32,10 +32,17 @@ android {
     }
 }
 
+
+
 repositories {
     maven {
         url "https://jitpack.io"
     }
+}
+
+configurations.all {
+    // check for updates every build
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
 dependencies {
@@ -53,5 +60,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.2.0'
     compile 'com.android.support:design:23.2.0'
     compile 'com.android.support:support-v4:23.2.0'
-    compile 'com.github.Pryv:lib-java:v0.1'
+    compile group: "com.github.Pryv", name: "lib-java", version: "v0.1", changing: true
 }
