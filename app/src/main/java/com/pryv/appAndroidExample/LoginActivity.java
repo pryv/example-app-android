@@ -94,7 +94,7 @@ public class LoginActivity extends Activity {
 
         @Override
         public void onAuthSuccess(String username, String token) {
-            setCreditentials(username, token);
+            setCredentials(username, token);
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
         }
@@ -124,7 +124,7 @@ public class LoginActivity extends Activity {
                 .show();
     }
 
-    public static void setCreditentials(String username, String token) {
+    public static void setCredentials(String username, String token) {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString(USERNAME, encrypt(username));
         editor.putString(TOKEN, encrypt(token));

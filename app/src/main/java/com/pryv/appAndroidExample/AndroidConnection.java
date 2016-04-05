@@ -29,7 +29,7 @@ public class AndroidConnection {
 
     public AndroidConnection (Handler creationHandler, Handler retrievalHandler) {
         Pryv.deactivateCache();
-        Pryv.deactivateSupervisor();
+        //Pryv.deactivateSupervisor();
 
         this.creationHandler = creationHandler;
         this.retrievalHandler = retrievalHandler;
