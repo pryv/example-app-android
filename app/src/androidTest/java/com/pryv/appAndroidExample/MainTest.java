@@ -1,14 +1,12 @@
 package com.pryv.appAndroidExample;
 
-import android.support.test.espresso.intent.rule.IntentsTestRule;
-import android.support.test.espresso.web.webdriver.DriverAtoms;
-import android.support.test.espresso.web.webdriver.Locator;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.jayway.awaitility.Awaitility;
+import com.pryv.appAndroidExample.activities.MainActivity;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -23,9 +21,6 @@ import static android.support.test.espresso.action.ViewActions.closeSoftKeyboard
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.web.sugar.Web.onWebView;
-import static android.support.test.espresso.web.webdriver.DriverAtoms.clearElement;
-import static android.support.test.espresso.web.webdriver.DriverAtoms.findElement;
-import static android.support.test.espresso.web.webdriver.DriverAtoms.webClick;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 

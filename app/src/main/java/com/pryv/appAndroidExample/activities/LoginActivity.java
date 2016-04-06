@@ -1,21 +1,19 @@
-package com.pryv.appAndroidExample;
+package com.pryv.appAndroidExample.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.util.Base64;
-import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
 
 import com.pryv.Pryv;
 import com.pryv.api.model.Permission;
+import com.pryv.appAndroidExample.Credentials;
+import com.pryv.appAndroidExample.R;
 import com.pryv.auth.AuthController;
 import com.pryv.auth.AuthView;
 

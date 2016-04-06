@@ -1,4 +1,4 @@
-package com.pryv.appAndroidExample;
+package com.pryv.appAndroidExample.activities;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -12,6 +12,10 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.pryv.appAndroidExample.AndroidConnection;
+import com.pryv.appAndroidExample.Credentials;
+import com.pryv.appAndroidExample.R;
 
 import java.util.ArrayList;
 

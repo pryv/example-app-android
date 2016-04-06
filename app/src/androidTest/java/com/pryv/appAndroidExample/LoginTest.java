@@ -1,13 +1,12 @@
 package com.pryv.appAndroidExample;
 
-import android.content.ComponentName;
-import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.espresso.web.webdriver.DriverAtoms;
 import android.support.test.espresso.web.webdriver.Locator;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.jayway.awaitility.Awaitility;
+import com.pryv.appAndroidExample.activities.LoginActivity;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -16,7 +15,6 @@ import org.junit.runner.RunWith;
 
 import java.util.concurrent.Callable;
 
-import static android.support.test.InstrumentationRegistry.getTargetContext;
 import static android.support.test.espresso.intent.Intents.intended;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static android.support.test.espresso.web.sugar.Web.onWebView;

@@ -13,10 +13,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.pryv.appAndroidExample.MainActivity"
+            android:name=".activities.MainActivity"
             android:label="@string/app_name">
         </activity>
-        <activity android:name="com.pryv.appAndroidExample.LoginActivity">
+        <activity android:name=".activities.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
