@@ -9,6 +9,7 @@ import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -42,6 +43,9 @@ public class MainActivity extends AppCompatActivity {
     private Handler noteCreationHandler;
     private Handler noteRetrievalHandler;
 
+    private BaseAdapter adapter;
+    private ArrayList<String> retrievedEvents;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +56,10 @@ public class MainActivity extends AppCompatActivity {
         progressView = (TextView) findViewById(R.id.progress);
         noteText = (EditText) findViewById(R.id.note);
         notesList = (ListView) findViewById(R.id.notesList);
+
+        retrievedEvents = new ArrayList<>();
+        adapter = new ArrayAdapter(this, R.layout.list_item, retrievedEvents);
+        notesList.setAdapter(adapter);
 
         // Initiate the connection to Pryv, providing handlers which will update UI
         Credentials credentials = new Credentials(this);
@@ -126,9 +134,9 @@ public class MainActivity extends AppCompatActivity {
         noteRetrievalHandler = new Handler() {
             public void handleMessage(Message msg) {
                 Bundle b = msg.getData();
-                ArrayList<String> retrievedEvents = b.getStringArrayList("events");
-                ArrayAdapter<String> adapter = new ArrayAdapter(MainActivity.this, R.layout.list_item, retrievedEvents);
-                notesList.setAdapter(adapter);
+                retrievedEvents.clear();
+                retrievedEvents.addAll(b.getStringArrayList("events"));
+                adapter.notifyDataSetChanged();
                 progressView.setText(NOTES_RETRIEVED_MESSAGE);
             }
         };
