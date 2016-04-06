@@ -28,6 +28,8 @@ android {
         exclude 'META-INF/NOTICE.txt'
         exclude 'META-INF/SERVICES'
         exclude 'META-INF/services/com.fasterxml.jackson.core.JsonFactory'
+        exclude 'META-INF/maven/com.google.guava/guava/pom.properties'
+        exclude 'META-INF/maven/com.google.guava/guava/pom.xml'
     }
 }
 

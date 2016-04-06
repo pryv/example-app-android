@@ -15,6 +15,10 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+/**
+ * Main screen allowing to create note events to your Pryv
+ * and retrieve all of them as a list of events
+ */
 public class MainActivity extends AppCompatActivity {
 
     private TextView progressView;
@@ -51,8 +55,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     /**
      * Override back button action with logout alert dialog
-     * If click yes, disconnect the user by resetting credentials,
-     * empty activities stack and starting login activity
+     * If click yes, disconnect the user;
+     * empty activities stack and start login activity
      */
     public void onBackPressed() {
         new AlertDialog.Builder(this)
@@ -61,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        LoginActivity.resetCredentials();
                         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);

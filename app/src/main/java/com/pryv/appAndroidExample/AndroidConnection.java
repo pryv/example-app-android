@@ -18,7 +18,9 @@ import java.util.ArrayList;
 import java.util.Map;
 
 /**
- * Created by Thieb on 26.02.2016.
+ * Utility class that handles all communications with Pryv by:
+ * initiating connection, setting up callbacks, creating/retrieving events/streams
+ * and notifying UI through handlers
  */
 public class AndroidConnection {
     private static Connection connection;

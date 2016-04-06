@@ -10,6 +10,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
 
@@ -20,21 +21,24 @@ import com.pryv.auth.AuthView;
 
 import java.util.ArrayList;
 
+/**
+ * Launcher class that allows to connect as Pryv user or to create a Pryv account
+ * This is here that credentials storage, domain choice, app id and permissions are managed
+ */
 public class LoginActivity extends Activity {
 
     private String webViewUrl;
-    private String errorMessage = "Unknown error";
     private WebView webView;
 
     private Permission creatorPermission = new Permission("*", Permission.Level.manage, "Creator");
     private ArrayList<Permission> permissions;
 
+    private static SharedPreferences preferences;
     private final static String USERNAME = "username";
     private final static String TOKEN = "token";
-    private static SharedPreferences preferences;
-
     public final static String DOMAIN = "pryv-switch.ch";
     public final static String APPID = "app-android-iHealth";
+    private String errorMessage = "Unknown error";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +46,7 @@ public class LoginActivity extends Activity {
         setContentView(R.layout.activity_login);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        resetCredentials();
 
         webView = (WebView) findViewById(R.id.webview);
         Pryv.setDomain(DOMAIN);
@@ -50,6 +55,10 @@ public class LoginActivity extends Activity {
         new SigninAsync().execute();
     }
 
+    /**
+     * AsyncTask that requests the login page from Pryv
+     * using AuthController and shows it in a WebView
+     */
     private class SigninAsync extends AsyncTask<Void, Void, Void> {
 
         private ProgressDialog progressDialog;
@@ -79,20 +88,35 @@ public class LoginActivity extends Activity {
                 webView.getSettings().setUseWideViewPort(true);
                 webView.loadUrl(webViewUrl);
             } else {
-                showError();
+                new AlertDialog.Builder(LoginActivity.this)
+                        .setTitle("Authentification error: ")
+                        .setMessage(errorMessage)
+                        .setPositiveButton("Try again", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                finish();
+                                startActivity(getIntent());
+                            }
+                        })
+                        .show();
             }
         }
 
     }
 
+    /**
+     * Custom AuthView that configures some callbacks
+     */
     private class CustomAuthView implements AuthView {
 
         @Override
+        // Set up the WebView url when we get it from AuthController
         public void displayLoginView(String loginURL) {
             webViewUrl = loginURL;
         }
 
         @Override
+        // Save the credentials if authentication succeeds
         public void onAuthSuccess(String username, String token) {
             setCredentials(username, token);
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
@@ -100,30 +124,23 @@ public class LoginActivity extends Activity {
         }
 
         @Override
+        // Set up error messages if authentication fails
         public void onAuthError(String msg) {
             errorMessage = msg;
         }
 
         @Override
+        // Set up error messages if authentication is refused
         public void onAuthRefused(int reasonId, String msg, String detail) {
             errorMessage = msg;
         }
     }
 
-    public void showError() {
-        new AlertDialog.Builder(this)
-                .setTitle("Authentification error: ")
-                .setMessage(errorMessage)
-                .setPositiveButton("Try again", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        finish();
-                        startActivity(getIntent());
-                    }
-                })
-                .show();
-    }
-
+    /**
+     * Public method that saves the credentials in the shared preferences using encryption
+     * @param username: Pryv username
+     * @param token: Pryv access token
+     */
     public static void setCredentials(String username, String token) {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString(USERNAME, encrypt(username));
@@ -131,6 +148,9 @@ public class LoginActivity extends Activity {
         editor.apply();
     }
 
+    /**
+     * Public method allowing to remove stored credentials (at logout for example)
+     */
     public static void resetCredentials() {
         SharedPreferences.Editor editor = preferences.edit();
         editor.remove(USERNAME);
@@ -138,19 +158,37 @@ public class LoginActivity extends Activity {
         editor.apply();
     }
 
+    /**
+     * Getter for username
+     * @return: decrypted Pryv username
+     */
     public static String getUsername() {
         return decrypt(preferences.getString(USERNAME, null));
     }
 
+    /**
+     * Getter for token
+     * @return: decrypted Pryv access token
+     */
     public static String getToken() {
         return decrypt(preferences.getString(TOKEN, null));
     }
 
-    public static String encrypt(String input) {
+    /**
+     * Encryption method using Base64
+     * @param input: string to encrypt
+     * @return: encrypted string or null if input is null
+     */
+    private static String encrypt(String input) {
         return (input != null) ? Base64.encodeToString(input.getBytes(), Base64.DEFAULT) : null;
     }
 
-    public static String decrypt(String input) {
+    /**
+     * Decryption method using Base64
+     * @param input: string to decrypt
+     * @return: decrypted string or null if input is null
+     */
+    private static String decrypt(String input) {
         return (input != null) ? new String(Base64.decode(input, Base64.DEFAULT)) : null;
     }
 
