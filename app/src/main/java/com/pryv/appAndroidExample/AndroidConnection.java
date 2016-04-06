@@ -29,7 +29,7 @@ public class AndroidConnection {
     private EventsCallback eventsCallback;
     private StreamsCallback streamsCallback;
 
-    public AndroidConnection (Handler creationHandler, Handler retrievalHandler) {
+    public AndroidConnection (String username, String token, Handler creationHandler, Handler retrievalHandler) {
         Pryv.deactivateCache();
         //Pryv.deactivateSupervisor();
 
@@ -38,7 +38,7 @@ public class AndroidConnection {
         setCallbacks();
 
         // Initiate new connection to Pryv with connected account
-        connection = new Connection(LoginActivity.getUsername(), LoginActivity.getToken(), new DBinitCallback(){});
+        connection = new Connection(username, token, new DBinitCallback(){});
     }
 
     /**

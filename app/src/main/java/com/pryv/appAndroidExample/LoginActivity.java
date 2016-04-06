@@ -33,20 +33,16 @@ public class LoginActivity extends Activity {
     private Permission creatorPermission = new Permission("*", Permission.Level.manage, "Creator");
     private ArrayList<Permission> permissions;
 
-    private static SharedPreferences preferences;
-    private final static String USERNAME = "username";
-    private final static String TOKEN = "token";
+    private String errorMessage = "Unknown error";
     public final static String DOMAIN = "pryv-switch.ch";
     public final static String APPID = "app-android-iHealth";
-    private String errorMessage = "Unknown error";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        resetCredentials();
+        new Credentials(this).resetCredentials();
 
         webView = (WebView) findViewById(R.id.webview);
         Pryv.setDomain(DOMAIN);
@@ -118,7 +114,7 @@ public class LoginActivity extends Activity {
         @Override
         // Save the credentials if authentication succeeds
         public void onAuthSuccess(String username, String token) {
-            setCredentials(username, token);
+            new Credentials(LoginActivity.this).setCredentials(username,token);
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
         }
@@ -134,62 +130,6 @@ public class LoginActivity extends Activity {
         public void onAuthRefused(int reasonId, String msg, String detail) {
             errorMessage = msg;
         }
-    }
-
-    /**
-     * Public method that saves the credentials in the shared preferences using encryption
-     * @param username: Pryv username
-     * @param token: Pryv access token
-     */
-    public static void setCredentials(String username, String token) {
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(USERNAME, encrypt(username));
-        editor.putString(TOKEN, encrypt(token));
-        editor.apply();
-    }
-
-    /**
-     * Public method allowing to remove stored credentials (at logout for example)
-     */
-    public static void resetCredentials() {
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.remove(USERNAME);
-        editor.remove(TOKEN);
-        editor.apply();
-    }
-
-    /**
-     * Getter for username
-     * @return: decrypted Pryv username
-     */
-    public static String getUsername() {
-        return decrypt(preferences.getString(USERNAME, null));
-    }
-
-    /**
-     * Getter for token
-     * @return: decrypted Pryv access token
-     */
-    public static String getToken() {
-        return decrypt(preferences.getString(TOKEN, null));
-    }
-
-    /**
-     * Encryption method using Base64
-     * @param input: string to encrypt
-     * @return: encrypted string or null if input is null
-     */
-    private static String encrypt(String input) {
-        return (input != null) ? Base64.encodeToString(input.getBytes(), Base64.DEFAULT) : null;
-    }
-
-    /**
-     * Decryption method using Base64
-     * @param input: string to decrypt
-     * @return: decrypted string or null if input is null
-     */
-    private static String decrypt(String input) {
-        return (input != null) ? new String(Base64.decode(input, Base64.DEFAULT)) : null;
     }
 
 }

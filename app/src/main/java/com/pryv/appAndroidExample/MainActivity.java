@@ -31,6 +31,10 @@ public class MainActivity extends AppCompatActivity {
     private static final String NOTE_STREAM_NAME = "Notes";
     private static final String NOTE_EVENT_TYPE = "note/txt";
 
+    public static final String TOO_LONG_ERROR = "Please make your note shorter (20 characters max)!";
+    public static final String TOO_SHORT_ERROR = "Your note must contain some text!";
+    public static final String NOTES_RETRIEVED_MESSAGE = "All notes retrieved!";
+
     private Handler noteCreationHandler;
     private Handler noteRetrievalHandler;
 
@@ -43,10 +47,11 @@ public class MainActivity extends AppCompatActivity {
 
         progressView = (TextView) findViewById(R.id.progress);
         noteText = (EditText) findViewById(R.id.note);
-        notesList = (ListView) findViewById(R.id.notes_list);
+        notesList = (ListView) findViewById(R.id.notesList);
 
         // Initiate the connection to Pryv, providing handlers which will update UI
-        connection = new AndroidConnection(noteCreationHandler, noteRetrievalHandler);
+        Credentials credentials = new Credentials(this);
+        connection = new AndroidConnection(credentials.getUsername(), credentials.getToken(), noteCreationHandler, noteRetrievalHandler);
 
         // Initiate a "Notes" stream containing notes if not already created
         connection.saveStream(NOTE_STREAM_ID, NOTE_STREAM_NAME);
@@ -82,13 +87,13 @@ public class MainActivity extends AppCompatActivity {
         String text = noteText.getText().toString();
         if(!text.isEmpty()) {
             if(text.length()>20) {
-                progressView.setText("Please make your note shorter (20 characters max)!");
+                progressView.setText(TOO_LONG_ERROR);
             } else {
                 noteText.setText("");
                 connection.saveEvent(NOTE_STREAM_ID,NOTE_EVENT_TYPE,text);
             }
         } else {
-            progressView.setText("Your note must contain some text!");
+            progressView.setText(TOO_SHORT_ERROR);
         }
     }
 
@@ -120,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
                 ArrayList<String> retrievedEvents = b.getStringArrayList("events");
                 ArrayAdapter<String> adapter = new ArrayAdapter(MainActivity.this, R.layout.list_item, retrievedEvents);
                 notesList.setAdapter(adapter);
-                progressView.setText("All notes retrieved!");
+                progressView.setText(NOTES_RETRIEVED_MESSAGE);
             }
         };
     }

@@ -10,6 +10,7 @@
         android:layout_height="wrap_content" />
 
     <Button
+        android:id="@+id/addNote"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:text="@string/add_note"
@@ -17,6 +18,7 @@
         android:layout_gravity="center_horizontal" />
 
     <Button
+        android:id="@+id/retrieveNote"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:text="@string/retrieve_notes"
@@ -29,7 +31,7 @@
         android:layout_height="wrap_content" />
 
     <ListView
-        android:id="@+id/notes_list"
+        android:id="@+id/notesList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
     </ListView>

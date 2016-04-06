@@ -1,26 +1,30 @@
 package com.pryv.appAndroidExample;
 
-import android.content.Intent;
+import android.content.ComponentName;
+import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.espresso.web.webdriver.DriverAtoms;
 import android.support.test.espresso.web.webdriver.Locator;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+
+import com.jayway.awaitility.Awaitility;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static android.support.test.espresso.web.assertion.WebViewAssertions.webMatches;
+import java.util.concurrent.Callable;
+
+import static android.support.test.InstrumentationRegistry.getTargetContext;
+import static android.support.test.espresso.intent.Intents.intended;
+import static android.support.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static android.support.test.espresso.web.sugar.Web.onWebView;
 import static android.support.test.espresso.web.webdriver.DriverAtoms.clearElement;
 import static android.support.test.espresso.web.webdriver.DriverAtoms.findElement;
-import static android.support.test.espresso.web.webdriver.DriverAtoms.getText;
 import static android.support.test.espresso.web.webdriver.DriverAtoms.webClick;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 
 /**
  * Created by Thieb on 30.03.2016.
@@ -30,27 +34,21 @@ public class LoginTest {
     private String userName;
     private String validPassword;
     private String invalidPassword;
+    private Credentials credentials;
 
     @Rule
-    public ActivityTestRule<LoginActivity> mActivityRule = new ActivityTestRule<LoginActivity>(LoginActivity.class, false, false) {
-        @Override
-        protected void afterActivityLaunched() {
-            // Enable JS!
-            onWebView().forceJavascriptEnabled();
-        }
-    };
+    public ActivityTestRule<LoginActivity> loginActivityRule = new ActivityTestRule(LoginActivity.class);
 
     @Before
     public void initCredentials() {
-        userName = "tmodoux";
+        userName = "apptest";
         invalidPassword = "password";
+        validPassword = "apptest";
+        credentials = new Credentials(loginActivityRule.getActivity().getApplicationContext());
     }
 
     @Test
     public void invalidLogin() {
-        // Lazily launch the Activity with a custom start Intent per test
-        mActivityRule.launchActivity(new Intent());
-
         onWebView()
                 // Find the input element by ID for username
                 .withElement(findElement(Locator.ID, "loginUsernameOrEmail"))
@@ -69,9 +67,44 @@ public class LoginTest {
                         // Simulate a click via javascript
                 .perform(webClick());
 
-        assertTrue(mActivityRule.getActivity().getUsername() == null);
-        assertTrue(mActivityRule.getActivity().getToken() == null);
+        assertTrue(credentials.getToken() == null);
+        assertTrue(credentials.getUsername() == null);
 
+    }
+
+    @Test
+    public void validLogin() {
+        onWebView()
+                // Find the input element by ID for username
+                .withElement(findElement(Locator.ID, "loginUsernameOrEmail"))
+                        // Clear previous input
+                .perform(clearElement())
+                        // Enter text into the input element
+                .perform(DriverAtoms.webKeys(userName))
+                        // Same for password
+                .withElement(findElement(Locator.ID, "loginPassword"))
+                        // Clear previous input
+                .perform(clearElement())
+                        // Enter text into the input element
+                .perform(DriverAtoms.webKeys(validPassword))
+                        // Find the submit button
+                .withElement(findElement(Locator.ID, "login-form-loginButton"))
+                        // Simulate a click via javascript
+                .perform(webClick());
+
+        Awaitility.await().until(hasCredentials());
+        assertFalse(credentials.getToken() == null);
+        assertFalse(credentials.getUsername() == null);
+        assertTrue(credentials.getUsername().equals(userName));
+    }
+
+    private Callable<Boolean> hasCredentials() {
+        return new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return (credentials.getUsername() != null && credentials.getToken() != null);
+            }
+        };
     }
 
 }
