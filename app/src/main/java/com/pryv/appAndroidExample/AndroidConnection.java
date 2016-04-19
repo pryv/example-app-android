@@ -10,6 +10,7 @@ import com.pryv.Filter;
 import com.pryv.Pryv;
 import com.pryv.api.OnlineEventsAndStreamsManager;
 import com.pryv.appAndroidExample.activities.LoginActivity;
+import com.pryv.database.DBinitCallback;
 import com.pryv.interfaces.EventsCallback;
 import com.pryv.interfaces.GetEventsCallback;
 import com.pryv.interfaces.StreamsCallback;
@@ -26,7 +27,7 @@ import java.util.Map;
  * and notifying UI through handlers
  */
 public class AndroidConnection {
-    private OnlineEventsAndStreamsManager online;
+    private Connection connection;
     private Handler creationHandler;
     private Handler retrievalHandler;
     private EventsCallback eventsCallback;
@@ -42,8 +43,7 @@ public class AndroidConnection {
         setCallbacks();
 
         // Initiate new connection to Pryv with connected account
-        String url = "https://" + username + "." + LoginActivity.DOMAIN + "/";
-        online = new OnlineEventsAndStreamsManager(url, token, null);
+        connection = new Connection(username,token,LoginActivity.DOMAIN,new DBinitCallback());
     }
 
     /**
@@ -57,7 +57,7 @@ public class AndroidConnection {
         event.setStreamId(streamId);
         event.setType(type);
         event.setContent(content);
-        online.createEvent(event, eventsCallback);
+        connection.events.create(event,eventsCallback);
     }
 
     /**
@@ -69,7 +69,7 @@ public class AndroidConnection {
         Stream stream = new Stream();
         stream.setId(streamId);
         stream.setName(streamName);
-        online.createStream(stream, streamsCallback);
+        connection.streams.create(stream, streamsCallback);
         return stream;
     }
 
@@ -82,7 +82,7 @@ public class AndroidConnection {
         // TODO: DO NOT LIKE PASSING STREAM FROM MAINACTIVITY, GETSTREAMBYID?
         Filter filter = new Filter();
         filter.addStream(stream);
-        online.getEvents(filter, getEventsCallback);
+        connection.events.get(filter, getEventsCallback);
     }
 
     /**
