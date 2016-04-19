@@ -38,10 +38,12 @@ public class AndroidConnection {
 
         this.creationHandler = creationHandler;
         this.retrievalHandler = retrievalHandler;
+
         setCallbacks();
 
         // Initiate new connection to Pryv with connected account
         connection = new Connection(username, token, LoginActivity.DOMAIN, new DBinitCallback());
+        connection.setupCacheScope(new Filter());
     }
 
     /**
@@ -55,7 +57,7 @@ public class AndroidConnection {
         event.setStreamId(streamId);
         event.setType(type);
         event.setContent(content);
-        connection.events.create(event, eventsCallback);
+        connection.events.create(new Event(streamId, null, type, content), eventsCallback);
     }
 
     /**
@@ -64,9 +66,7 @@ public class AndroidConnection {
      * @param streamName: name of the new stream
      */
     public Stream saveStream(String streamId, String streamName) {
-        Stream stream = new Stream();
-        stream.setId(streamId);
-        stream.setName(streamName);
+        Stream stream = new Stream(streamId,streamName);
         connection.streams.create(stream, streamsCallback);
         return stream;
     }
