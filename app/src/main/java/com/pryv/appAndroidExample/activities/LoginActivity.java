@@ -11,11 +11,11 @@ import android.view.View;
 import android.webkit.WebView;
 
 import com.pryv.Pryv;
-import com.pryv.api.model.Permission;
 import com.pryv.appAndroidExample.Credentials;
 import com.pryv.appAndroidExample.R;
 import com.pryv.auth.AuthController;
 import com.pryv.auth.AuthView;
+import com.pryv.model.Permission;
 
 import java.util.ArrayList;
 
@@ -43,7 +43,10 @@ public class LoginActivity extends Activity {
         new Credentials(this).resetCredentials();
 
         webView = (WebView) findViewById(R.id.webview);
+
+        // TODO: SET ELSEWHERE???
         Pryv.setDomain(DOMAIN);
+
         permissions = new ArrayList<>();
         permissions.add(creatorPermission);
         new SigninAsync().execute();

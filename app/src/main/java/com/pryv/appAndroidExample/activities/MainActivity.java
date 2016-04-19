@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.pryv.appAndroidExample.AndroidConnection;
 import com.pryv.appAndroidExample.Credentials;
 import com.pryv.appAndroidExample.R;
+import com.pryv.model.Stream;
 
 import java.util.ArrayList;
 
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String NOTE_STREAM_ID = "sampleNotes";
     private static final String NOTE_STREAM_NAME = "Notes";
     private static final String NOTE_EVENT_TYPE = "note/txt";
+    private Stream noteStream;
 
     public static final String TOO_LONG_ERROR = "Please make your note shorter (20 characters max)!";
     public static final String TOO_SHORT_ERROR = "Your note must contain some text!";
@@ -66,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         connection = new AndroidConnection(credentials.getUsername(), credentials.getToken(), noteCreationHandler, noteRetrievalHandler);
 
         // Initiate a "Notes" stream containing notes if not already created
-        connection.saveStream(NOTE_STREAM_ID, NOTE_STREAM_NAME);
+        noteStream = connection.saveStream(NOTE_STREAM_ID, NOTE_STREAM_NAME);
     }
 
     @Override
@@ -114,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
      * Ask for the retrieval of all stored notes
      */
     public void retrieveNotes(View v) {
-        connection.retrieveEvents(NOTE_STREAM_ID, NOTE_EVENT_TYPE);
+        connection.retrieveEvents(noteStream, NOTE_EVENT_TYPE);
     }
 
     private void setHandlers() {

@@ -6,15 +6,18 @@ import android.os.Message;
 import android.util.Log;
 
 import com.pryv.Connection;
+import com.pryv.Filter;
 import com.pryv.Pryv;
-import com.pryv.api.EventsCallback;
-import com.pryv.api.Filter;
-import com.pryv.api.StreamsCallback;
-import com.pryv.api.database.DBinitCallback;
-import com.pryv.api.model.Event;
-import com.pryv.api.model.Stream;
+import com.pryv.api.OnlineEventsAndStreamsManager;
+import com.pryv.appAndroidExample.activities.LoginActivity;
+import com.pryv.interfaces.EventsCallback;
+import com.pryv.interfaces.GetEventsCallback;
+import com.pryv.interfaces.StreamsCallback;
+import com.pryv.model.Event;
+import com.pryv.model.Stream;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,14 +26,15 @@ import java.util.Map;
  * and notifying UI through handlers
  */
 public class AndroidConnection {
-    private static Connection connection;
+    private OnlineEventsAndStreamsManager online;
     private Handler creationHandler;
     private Handler retrievalHandler;
     private EventsCallback eventsCallback;
+    private GetEventsCallback getEventsCallback;
     private StreamsCallback streamsCallback;
 
     public AndroidConnection (String username, String token, Handler creationHandler, Handler retrievalHandler) {
-        Pryv.deactivateCache();
+        //Pryv.deactivateCache();
         //Pryv.deactivateSupervisor();
 
         this.creationHandler = creationHandler;
@@ -38,7 +42,8 @@ public class AndroidConnection {
         setCallbacks();
 
         // Initiate new connection to Pryv with connected account
-        connection = new Connection(username, token, new DBinitCallback(){});
+        String url = "https://" + username + "." + LoginActivity.DOMAIN + "/";
+        online = new OnlineEventsAndStreamsManager(url, token, null);
     }
 
     /**
@@ -52,7 +57,7 @@ public class AndroidConnection {
         event.setStreamId(streamId);
         event.setType(type);
         event.setContent(content);
-        connection.createEvent(event, eventsCallback);
+        online.createEvent(event, eventsCallback);
     }
 
     /**
@@ -60,23 +65,24 @@ public class AndroidConnection {
      * @param streamId: id of the new stream
      * @param streamName: name of the new stream
      */
-    public void saveStream(String streamId, String streamName) {
+    public Stream saveStream(String streamId, String streamName) {
         Stream stream = new Stream();
         stream.setId(streamId);
         stream.setName(streamName);
-        connection.createStream(stream, streamsCallback);
+        online.createStream(stream, streamsCallback);
+        return stream;
     }
 
     /**
      * Retrieve all events from Pryv according to some filter
-     * @param streamId: filter events by stream id
+     * @param stream: filter events by stream
      * @param type: filter events by type
      */
-    public void retrieveEvents(String streamId, String type) {
+    public void retrieveEvents(Stream stream, String type) {
+        // TODO: DO NOT LIKE PASSING STREAM FROM MAINACTIVITY, GETSTREAMBYID?
         Filter filter = new Filter();
-        filter.addStreamId(streamId);
-        filter.addType(type);
-        connection.getEvents(filter, eventsCallback);
+        filter.addStream(stream);
+        online.getEvents(filter, getEventsCallback);
     }
 
     /**
@@ -95,10 +101,12 @@ public class AndroidConnection {
      * Notify the MainActivity to update its events list
      * @param events: the list of events retrieved
      */
-    private void notifyUI(Map<String, Event> events) {
+    private void notifyUI(List<Event> events) {
         Bundle b = new Bundle();
         ArrayList<String> retrievedEvents = new ArrayList<>();
-        retrievedEvents.addAll(events.keySet());
+        for(Event e: events) {
+            retrievedEvents.add((String)e.getContent());
+        }
         b.putStringArrayList("events", retrievedEvents);
         Message msg = new Message();
         msg.setData(b);
@@ -110,31 +118,27 @@ public class AndroidConnection {
      */
     private void setCallbacks() {
 
-        //Called when action related to events complete
+        //Called when action related to events creation/modification complete
         eventsCallback = new EventsCallback() {
 
             @Override
-            public void onEventsRetrievalSuccess(Map<String, Event> events, Double serverTime) {
-                Log.d("Pryv", "onEventsRetrievalSuccess");
-                notifyUI(events);
+            public void onApiSuccess(String s, Event event, String s1, Double aDouble) {
+                notifyUI(s);
             }
 
             @Override
-            public void onEventsRetrievalError(String errorMessage, Double serverTime) {
-                Log.d("Pryv", errorMessage);
-                notifyUI(errorMessage);
+            public void onApiError(String s, Double aDouble) {
+                notifyUI(s);
             }
 
             @Override
-            public void onEventsSuccess(String successMessage, Event event, Integer stoppedId, Double serverTime) {
-                Log.d("Pryv", successMessage);
-                notifyUI("New event created: id=" + event.getId() + ", streamID=" + event.getStreamId() + ", type=" + event.getType() + ", content=" + event.getContent());
+            public void onCacheSuccess(String s, Event event) {
+                notifyUI(s);
             }
 
             @Override
-            public void onEventsError(String errorMessage, Double serverTime) {
-                Log.d("Pryv", errorMessage);
-                notifyUI(errorMessage);
+            public void onCacheError(String s) {
+                notifyUI(s);
             }
         };
 
@@ -142,23 +146,47 @@ public class AndroidConnection {
         streamsCallback = new StreamsCallback() {
 
             @Override
-            public void onStreamsSuccess(String successMessage, Stream stream, Double serverTime) {
-                Log.d("Pryv", successMessage);
+            public void onApiSuccess(String s, Stream stream, Double aDouble) {
+                Log.d("Pryv",s);
             }
 
             @Override
-            public void onStreamsRetrievalSuccess(Map<String, Stream> streams, Double serverTime) {
-                Log.d("Pryv", "onStreamsRetrievalSuccess");
+            public void onApiError(String s, Double aDouble) {
+                Log.d("Pryv", s);
             }
 
             @Override
-            public void onStreamsRetrievalError(String errorMessage, Double serverTime) {
-                Log.d("Pryv", errorMessage);
+            public void onCacheSuccess(String s, Stream stream) {
+                Log.d("Pryv", s);
             }
 
             @Override
-            public void onStreamError(String errorMessage, Double serverTime) {
-                Log.d("Pryv", errorMessage);
+            public void onCacheError(String s) {
+                Log.d("Pryv", s);
+            }
+
+        };
+
+        //Called when action related to events retrieval
+        getEventsCallback = new GetEventsCallback() {
+            @Override
+            public void cacheCallback(List<Event> list, Map<String, Double> map) {
+                notifyUI(list);
+            }
+
+            @Override
+            public void onCacheError(String s) {
+                notifyUI(s);
+            }
+
+            @Override
+            public void apiCallback(List<Event> list, Map<String, Double> map, Double aDouble) {
+                notifyUI(list);
+            }
+
+            @Override
+            public void onApiError(String s, Double aDouble) {
+                notifyUI(s);
             }
         };
 

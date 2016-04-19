@@ -1,11 +1,16 @@
 package com.pryv.appAndroidExample;
 
+import android.support.test.espresso.web.webdriver.DriverAtoms;
+import android.support.test.espresso.web.webdriver.Locator;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.util.Log;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.jayway.awaitility.Awaitility;
+import com.pryv.Pryv;
+import com.pryv.appAndroidExample.activities.LoginActivity;
 import com.pryv.appAndroidExample.activities.MainActivity;
 
 import org.junit.Before;
@@ -21,6 +26,9 @@ import static android.support.test.espresso.action.ViewActions.closeSoftKeyboard
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.web.sugar.Web.onWebView;
+import static android.support.test.espresso.web.webdriver.DriverAtoms.clearElement;
+import static android.support.test.espresso.web.webdriver.DriverAtoms.findElement;
+import static android.support.test.espresso.web.webdriver.DriverAtoms.webClick;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
@@ -31,13 +39,20 @@ import static junit.framework.Assert.assertTrue;
 public class MainTest {
     private TextView notification;
     private ListView notes;
+    private Credentials credentials;
 
     @Rule
     public ActivityTestRule<MainActivity> mainActivityRule = new ActivityTestRule(MainActivity.class);
 
     @Before
     public void initViews() {
-        new Credentials(mainActivityRule.getActivity().getApplicationContext()).setCredentials("apptest", "apptest");
+        // Login
+        String userName = "apptest";
+        // TODO: FIND A WAY TO BYPASS LOGIN
+        String token = "???";
+        new Credentials(mainActivityRule.getActivity().getApplicationContext()).setCredentials(userName,token);
+
+        // MainActivity
         notification = (TextView) mainActivityRule.getActivity().findViewById(R.id.progress);
         notes = (ListView) mainActivityRule.getActivity().findViewById(R.id.notesList);
     }
@@ -47,13 +62,12 @@ public class MainTest {
         onView(withId(R.id.retrieveNote)).perform(click());
         Awaitility.await().until(isShowingMessage(mainActivityRule.getActivity().NOTES_RETRIEVED_MESSAGE));
         int n = notes.getAdapter().getCount();
-        onView(withId(R.id.note))
-                .perform(typeText("This is a test"), closeSoftKeyboard());
+        onView(withId(R.id.note)).perform(typeText("This is a test"), closeSoftKeyboard());
         onView(withId(R.id.addNote)).perform(click());
         Awaitility.await().until(isShowingMessage("event created"));
         onView(withId(R.id.retrieveNote)).perform(click());
         Awaitility.await().until(isShowingMessage(mainActivityRule.getActivity().NOTES_RETRIEVED_MESSAGE));
-        assertTrue(notes.getAdapter().getCount() == n+1);
+        assertTrue(notes.getAdapter().getCount() == n + 1);
     }
 
     @Test
@@ -75,6 +89,15 @@ public class MainTest {
             @Override
             public Boolean call() throws Exception {
                 return (notification.getText().toString().contains(message));
+            }
+        };
+    }
+
+    private Callable<Boolean> hasCredentials() {
+        return new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return (mainActivityRule.getActivity() != null && credentials.getUsername() != null && credentials.getToken() != null);
             }
         };
     }
