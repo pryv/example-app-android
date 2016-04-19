@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.pryv.Pryv;
 import com.pryv.appAndroidExample.AndroidConnection;
 import com.pryv.appAndroidExample.Credentials;
 import com.pryv.appAndroidExample.R;

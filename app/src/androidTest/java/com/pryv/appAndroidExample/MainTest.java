@@ -1,16 +1,11 @@
 package com.pryv.appAndroidExample;
 
-import android.support.test.espresso.web.webdriver.DriverAtoms;
-import android.support.test.espresso.web.webdriver.Locator;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.util.Log;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.jayway.awaitility.Awaitility;
-import com.pryv.Pryv;
-import com.pryv.appAndroidExample.activities.LoginActivity;
 import com.pryv.appAndroidExample.activities.MainActivity;
 
 import org.junit.Before;
@@ -25,11 +20,6 @@ import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.web.sugar.Web.onWebView;
-import static android.support.test.espresso.web.webdriver.DriverAtoms.clearElement;
-import static android.support.test.espresso.web.webdriver.DriverAtoms.findElement;
-import static android.support.test.espresso.web.webdriver.DriverAtoms.webClick;
-import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
 /**
@@ -45,12 +35,12 @@ public class MainTest {
     public ActivityTestRule<MainActivity> mainActivityRule = new ActivityTestRule(MainActivity.class);
 
     @Before
-    public void initViews() {
+    public void init() {
         // Login
         String userName = "apptest";
-        // TODO: FIND A WAY TO BYPASS LOGIN
-        String token = "???";
-        new Credentials(mainActivityRule.getActivity().getApplicationContext()).setCredentials(userName,token);
+        String token = "cin7dyeazext5wvyqijx6jfum";
+        credentials = new Credentials(mainActivityRule.getActivity().getApplicationContext());
+        credentials.setCredentials(userName,token);
 
         // MainActivity
         notification = (TextView) mainActivityRule.getActivity().findViewById(R.id.progress);
