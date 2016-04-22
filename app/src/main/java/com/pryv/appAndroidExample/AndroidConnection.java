@@ -7,8 +7,6 @@ import android.util.Log;
 
 import com.pryv.Connection;
 import com.pryv.Filter;
-import com.pryv.Pryv;
-import com.pryv.api.OnlineEventsAndStreamsManager;
 import com.pryv.appAndroidExample.activities.LoginActivity;
 import com.pryv.database.DBinitCallback;
 import com.pryv.interfaces.EventsCallback;
@@ -41,7 +39,7 @@ public class AndroidConnection {
         setCallbacks();
 
         // Initiate new connection to Pryv with connected account
-        connection = new Connection(username, token, LoginActivity.DOMAIN, new DBinitCallback());
+        connection = new Connection(username, token, LoginActivity.DOMAIN, false, new DBinitCallback());
     }
 
     /**
