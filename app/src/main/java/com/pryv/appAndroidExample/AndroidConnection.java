@@ -40,8 +40,7 @@ public class AndroidConnection {
         setCallbacks();
 
         // Initiate new connection to Pryv with connected account
-        connection = new Connection(username, token, LoginActivity.DOMAIN, new DBinitCallback());
-        connection.setupCacheScope(new Filter());
+        connection = new Connection(username, token, LoginActivity.DOMAIN, false, new DBinitCallback());
     }
 
     /**
