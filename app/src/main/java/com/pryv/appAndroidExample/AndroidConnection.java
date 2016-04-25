@@ -50,10 +50,6 @@ public class AndroidConnection {
      * @param content: content of the new event
      */
     public void saveEvent(String streamId, String type, String content) {
-        Event event = new Event();
-        event.setStreamId(streamId);
-        event.setType(type);
-        event.setContent(content);
         connection.events.create(new Event(streamId, null, type, content), eventsCallback);
     }
 
