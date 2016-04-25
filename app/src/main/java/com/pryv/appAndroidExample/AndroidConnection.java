@@ -7,8 +7,6 @@ import android.util.Log;
 
 import com.pryv.Connection;
 import com.pryv.Filter;
-import com.pryv.Pryv;
-import com.pryv.api.OnlineEventsAndStreamsManager;
 import com.pryv.appAndroidExample.activities.LoginActivity;
 import com.pryv.database.DBinitCallback;
 import com.pryv.interfaces.EventsCallback;
