@@ -2,28 +2,42 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:gravity="center_horizontal" >
 
     <TextView
         android:id="@+id/progress"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal" />
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/addNote"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="addNote"
+            android:text="@string/add_note" />
+
+        <Button
+            android:id="@+id/retrieveNote"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="retrieveNotes"
+            android:text="@string/retrieve_notes" />
+
+    </LinearLayout>
 
     <Button
-        android:id="@+id/addNote"
-        android:layout_height="wrap_content"
+        android:id="@+id/login"
         android:layout_width="wrap_content"
-        android:text="@string/add_note"
-        android:onClick="addNote"
-        android:layout_gravity="center_horizontal" />
-
-    <Button
-        android:id="@+id/retrieveNote"
         android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:text="@string/retrieve_notes"
-        android:onClick="retrieveNotes"
-        android:layout_gravity="center_horizontal" />
+        android:text="@string/login" />
 
     <EditText
         android:id="@+id/note"
@@ -33,7 +47,6 @@
     <ListView
         android:id="@+id/notesList"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-    </ListView>
+        android:layout_height="wrap_content"></ListView>
 
 </LinearLayout>

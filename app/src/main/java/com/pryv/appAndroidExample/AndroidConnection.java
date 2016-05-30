@@ -26,21 +26,31 @@ import java.util.Map;
  */
 public class AndroidConnection {
     private Connection connection;
-    private Handler creationHandler;
-    private Handler retrievalHandler;
+    private Handler notificationHandler;
     private EventsCallback eventsCallback;
     private GetEventsCallback getEventsCallback;
     private StreamsCallback streamsCallback;
 
-    public AndroidConnection (String username, String token, Handler creationHandler, Handler retrievalHandler) {
+    public static AndroidConnection singleton;
 
-        this.creationHandler = creationHandler;
-        this.retrievalHandler = retrievalHandler;
+    public final static int NOTIFICATION_TYPE_MESSAGE = 1;
+    public final static int NOTIFICATION_TYPE_EVENTS = 2;
 
+    public static AndroidConnection sharedInstance() {
+        if(singleton==null) {
+            singleton = new AndroidConnection();
+        }
+        return singleton;
+    }
+
+    public void setConnection (String username, String token) {
         setCallbacks();
-
         // Initiate new connection to Pryv with connected account
         connection = new Connection(username, token, LoginActivity.DOMAIN, false, new DBinitCallback());
+    }
+
+    public void setNotifications(Handler handler) {
+        notificationHandler = handler;
     }
 
     /**
@@ -50,7 +60,12 @@ public class AndroidConnection {
      * @param content: content of the new event
      */
     public void saveEvent(String streamId, String type, String content) {
-        connection.events.create(new Event(streamId, null, type, content), eventsCallback);
+        if(connection==null) {
+            notifyUI("Need login!");
+            Log.e("Pryv","Need login!");
+        } else {
+            connection.events.create(new Event(streamId, null, type, content), eventsCallback);
+        }
     }
 
     /**
@@ -59,21 +74,30 @@ public class AndroidConnection {
      * @param streamName: name of the new stream
      */
     public Stream saveStream(String streamId, String streamName) {
-        Stream stream = new Stream(streamId,streamName);
-        connection.streams.create(stream, streamsCallback);
+        Stream stream = null;
+        if(connection==null) {
+            notifyUI("Need login!");
+            Log.e("Pryv", "Need login!");
+        } else {
+            stream = new Stream(streamId,streamName);
+            connection.streams.create(stream, streamsCallback);
+        }
         return stream;
     }
 
     /**
      * Retrieve all events from Pryv according to some filter
      * @param stream: filter events by stream
-     * @param type: filter events by type
      */
-    public void retrieveEvents(Stream stream, String type) {
-        // TODO: DO NOT LIKE PASSING STREAM FROM MAINACTIVITY, GETSTREAMBYID?
-        Filter filter = new Filter();
-        filter.addStream(stream);
-        connection.events.get(filter, getEventsCallback);
+    public void retrieveEvents(Stream stream) {
+        if(connection == null) {
+            notifyUI("Need login!");
+            Log.e("Pryv", "Need login!");
+        } else {
+            Filter filter = new Filter();
+            filter.addStream(stream);
+            connection.events.get(filter, getEventsCallback);
+        }
     }
 
     /**
@@ -81,11 +105,14 @@ public class AndroidConnection {
      * @param notification: the notification message
      */
     private void notifyUI(String notification) {
-        Bundle b = new Bundle();
-        b.putString("notification", notification);
-        Message msg = new Message();
-        msg.setData(b);
-        creationHandler.sendMessage(msg);
+        if(notificationHandler!=null) {
+            Bundle b = new Bundle();
+            b.putInt("type", NOTIFICATION_TYPE_MESSAGE);
+            b.putString("content", notification);
+            Message msg = new Message();
+            msg.setData(b);
+            notificationHandler.sendMessage(msg);
+        }
     }
 
     /**
@@ -93,15 +120,18 @@ public class AndroidConnection {
      * @param events: the list of events retrieved
      */
     private void notifyUI(List<Event> events) {
-        Bundle b = new Bundle();
-        ArrayList<String> retrievedEvents = new ArrayList<>();
-        for(Event e: events) {
-            retrievedEvents.add((String)e.getContent());
+        if(notificationHandler!=null) {
+            Bundle b = new Bundle();
+            b.putInt("type", NOTIFICATION_TYPE_EVENTS);
+            ArrayList<String> retrievedEvents = new ArrayList<>();
+            for(Event e: events) {
+                retrievedEvents.add((String)e.getContent());
+            }
+            b.putStringArrayList("content", retrievedEvents);
+            Message msg = new Message();
+            msg.setData(b);
+            notificationHandler.sendMessage(msg);
         }
-        b.putStringArrayList("events", retrievedEvents);
-        Message msg = new Message();
-        msg.setData(b);
-        retrievalHandler.sendMessage(msg);
     }
 
     /**
@@ -115,21 +145,25 @@ public class AndroidConnection {
             @Override
             public void onApiSuccess(String s, Event event, String s1, Double aDouble) {
                 notifyUI(s);
+                Log.i("Pryv", s);
             }
 
             @Override
             public void onApiError(String s, Double aDouble) {
                 notifyUI(s);
+                Log.e("Pryv", s);
             }
 
             @Override
             public void onCacheSuccess(String s, Event event) {
                 notifyUI(s);
+                Log.i("Pryv", s);
             }
 
             @Override
             public void onCacheError(String s) {
                 notifyUI(s);
+                Log.e("Pryv", s);
             }
         };
 
@@ -138,22 +172,22 @@ public class AndroidConnection {
 
             @Override
             public void onApiSuccess(String s, Stream stream, Double aDouble) {
-                Log.d("Pryv",s);
+                Log.i("Pryv", s);
             }
 
             @Override
             public void onApiError(String s, Double aDouble) {
-                Log.d("Pryv", s);
+                Log.e("Pryv", s);
             }
 
             @Override
             public void onCacheSuccess(String s, Stream stream) {
-                Log.d("Pryv", s);
+                Log.i("Pryv", s);
             }
 
             @Override
             public void onCacheError(String s) {
-                Log.d("Pryv", s);
+                Log.e("Pryv", s);
             }
 
         };
@@ -163,21 +197,25 @@ public class AndroidConnection {
             @Override
             public void cacheCallback(List<Event> list, Map<String, Double> map) {
                 notifyUI(list);
+                Log.i("Pryv", list.size() + " events retrieved from cache.");
             }
 
             @Override
             public void onCacheError(String s) {
                 notifyUI(s);
+                Log.e("Pryv", s);
             }
 
             @Override
             public void apiCallback(List<Event> list, Map<String, Double> map, Double aDouble) {
                 notifyUI(list);
+                Log.i("Pryv", list.size() + " events retrieved from API.");
             }
 
             @Override
             public void onApiError(String s, Double aDouble) {
                 notifyUI(s);
+                Log.e("Pryv", s);
             }
         };
 
