@@ -2,18 +2,18 @@
 
 Android skeleton to build an app that will access your data on pryv.io using the [Pryv Java library](https://github.com/pryv/lib-java)
 
-This sample app contains the code that provides the login to your pryv account on the platform that you will have defined [here](https://github.com/pryv/app-android-example/blob/master/app/src/main/java/com/pryv/appAndroidExample/activities/LoginActivity.java#L39).
+This sample app contains the code that provides the login to your pryv account on the platform that you will have defined [here](https://github.com/pryv/app-android-example/blob/master/app/src/main/java/com/pryv/appAndroidExample/activities/LoginActivity.java#L37).
 For example, when using the pryv.me demo platform:
 
 ```java
 public final static String DOMAIN = "pryv.me";
 ```
 
-After signing in your account the app fetches the 20 most recent Events, the Stream structure and allows to create a note on the push of a button.
+After signing in your account the app is able to fetch all Events from a Stream and create a text note on the push of a button.
 
 ## Usage
 
-get the code `git clone https://github.com/pryv/android-app-example`
+Get the code `git clone https://github.com/pryv/android-app-example`
 
 ### Android studio
 
@@ -26,3 +26,155 @@ To use the skeleton app in Android Studio, go to `File>open` and select the fold
 ## License
 
 [Revised BSD license](https://github.com/pryv/documents/blob/master/license-bsd-revised.md)
+
+# Quick integration with another existing Android app
+
+If you already developed your own Android app and you want to integrate Pryv into it, here is a concise procedure to setup the only elements that you will need and in the shortest time.
+
+## Prerequisites
+
+First of all, you need to include the [Pryv Java library](https://github.com/pryv/lib-java) in your project.
+
+Using **Gradle**, just add the following repositories and dependency to your build.gradle:
+
+```
+repositories {
+    maven {
+        url "https://jitpack.io"
+    }
+	jcenter()
+}
+
+dependencies {
+	compile 'com.github.Pryv:lib-java:master-SNAPSHOT'
+}
+```
+
+Moreover, do not forget to add the Internet permission in your **AndroidManifest.xml** as follow:
+
+```android
+<uses-permission android:name="android.permission.INTERNET" />
+```
+
+## Login to your Pryv
+
+You will need to copy the following classes in your project:
+[**LoginActivity**](https://github.com/pryv/app-android-example/blob/master/app/src/main/java/com/pryv/appAndroidExample/activities/LoginActivity.java) and
+[**Credentials**](https://github.com/pryv/app-android-example/blob/master/app/src/main/java/com/pryv/appAndroidExample/Credentials.java).
+
+**LoginActivity** will handle all the process of account creation and login through a WebView.
+As soon as a login is successful, a pair of username and token will be stored in the Android SharedPreferences using a **Credentials** object.
+
+You can load the **LoginActivity** on the push of a login button for example and check if the user is log by calling the function
+```java
+hasCredentials()
+```
+from your **Credentials** object.
+
+Note that you can modify **LoginActivity** to adapt the domain to use and app ID:
+
+```java
+public final static String DOMAIN = "pryv.me";
+public final static String APPID = "app-android-skeleton";
+```
+
+## Interacting with your Pryv
+
+Now, copy [**AndroidConnection**](https://github.com/pryv/app-android-example/blob/master/app/src/main/java/com/pryv/appAndroidExample/AndroidConnection.java) in your project.
+
+This class will create a connection with your Pryv account and handle the creation and manipulation of Events and Streams.
+For all these tasks, use the singleton that you can get anywhere in your app by calling
+```java
+AndroidConnection.sharedInstance()
+```
+
+First of all, you need to initialize the connection by providing the credentials previously stored during the login phase:
+```java
+Credentials credentials = new Credentials(MainActivity.this);
+AndroidConnection.sharedInstance().setConnection(credentials.getUsername(), credentials.getToken());
+```
+
+You can then use the following functions:
+
+***Create a Stream:***
+```java
+Stream testStream = AndroidConnection.sharedInstance().saveStream("StreamId", "StreamName");
+```
+
+***Create an Event:***
+```java
+AndroidConnection.sharedInstance().saveEvent("StreamId", "EventType", "Content");
+```
+
+***Retrieve Events:***
+```java
+AndroidConnection.sharedInstance().retrieveEvents(containerStream);
+```
+
+## UI notifications
+
+Retrieving Events from your Pryv is a first step but you surely want to print them in your user interface.
+To do so, you will need to configure your own message ***Handler***, which will be used by the ***AndroidConnection*** to notify the UI.
+
+Here is an example of a simple Handler, which will pop the string content of any received notification:
+
+```java
+private final Handler notificationHandler = new Handler() {
+        public void handleMessage(Message msg) {
+            Bundle b = msg.getData();
+			Toast.makeText(MainActivity.this, b.getString("content"), Toast.LENGTH_SHORT).show();
+        }
+    };
+```
+
+Then, set up the notifications providing your Handler:
+```java
+AndroidConnection.sharedInstance().setNotifications(notificationHandler);
+```
+
+Of course, you need to configure in parallel the triggering of these notifications.
+This can be done in ***AndroidConnection*** by redifining the following callbacks: ***EventsCallback***, ***StreamsCallback*** and ***GetEventsCallback***.
+
+Here is an example of callback definition that will trigger the Handler we configured previously to inform the user about the result of an Event creation:
+
+```java
+private EventsCallback eventsCallback = new EventsCallback() {
+	@Override
+	public void onApiSuccess(String s, Event event, String s1, Double aDouble) {
+		notifyUI(s);
+		Log.i("Pryv", s);
+	}
+
+	@Override
+	public void onApiError(String s, Double aDouble) {
+		notifyUI(s);
+		Log.e("Pryv", s);
+	}
+
+	@Override
+	public void onCacheSuccess(String s, Event event) {
+		notifyUI(s);
+		Log.i("Pryv", s);
+	}
+
+	@Override
+	public void onCacheError(String s) {
+		notifyUI(s);
+		Log.e("Pryv", s);
+	}
+};
+
+private void notifyUI(String notification) {
+        if(notificationHandler!=null) {
+            Bundle b = new Bundle();
+            b.putString("content", notification);
+            Message msg = new Message();
+            msg.setData(b);
+            notificationHandler.sendMessage(msg);
+        }
+    }
+```
+
+## Further explanations
+
+If you still have misunderstandings when integrating Pryv into your app or if you want to see more concrete examples, do not hesitate to take a look at the sample [MainActivity](https://github.com/pryv/app-android-example/blob/master/app/src/main/java/com/pryv/appAndroidExample/activities/MainActivity.java).
