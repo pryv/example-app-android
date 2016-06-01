@@ -27,11 +27,11 @@ To use the skeleton app in Android Studio, go to `File>open` and select the fold
 
 [Revised BSD license](https://github.com/pryv/documents/blob/master/license-bsd-revised.md)
 
-# Quick integration with another existing Android app
+## Quick integration with another existing Android app
 
 If you already developed your own Android app and you want to integrate Pryv into it, here is a concise procedure to setup the only elements that you will need and in the shortest time.
 
-## Prerequisites
+### Prerequisites
 
 First of all, you need to include the [Pryv Java library](https://github.com/pryv/lib-java) in your project.
 
@@ -56,7 +56,7 @@ Moreover, do not forget to add the ***Internet permission*** in your **AndroidMa
 <uses-permission android:name="android.permission.INTERNET" />
 ```
 
-## Login to your Pryv
+### Login to your Pryv
 
 You will need to copy the following classes in your project:
 [**LoginActivity**](https://github.com/pryv/app-android-example/blob/master/app/src/main/java/com/pryv/appAndroidExample/activities/LoginActivity.java) and
@@ -74,7 +74,7 @@ public final static String DOMAIN = "pryv.me";
 public final static String APPID = "app-android-skeleton";
 ```
 
-## Interacting with your Pryv
+### Interacting with your Pryv
 
 Now, copy [**AndroidConnection**](https://github.com/pryv/app-android-example/blob/master/app/src/main/java/com/pryv/appAndroidExample/AndroidConnection.java) in your project.
 
@@ -107,7 +107,7 @@ AndroidConnection.sharedInstance().saveEvent("StreamId", "EventType", "Content")
 AndroidConnection.sharedInstance().retrieveEvents(containerStream);
 ```
 
-## UI notifications
+### UI notifications
 
 Creating Events is a first step but you surely want to inform the user when this is done.
 To do so, you will need to configure your own message ***Handler***, which will be used by the ***AndroidConnection*** to notify the UI.
@@ -171,6 +171,6 @@ private void notifyUI(String notification) {
     }
 ```
 
-## Further explanations
+### Further explanations
 
 If you still have misunderstandings when integrating Pryv into your app or if you want to see more concrete examples, do not hesitate to take a look at the sample [MainActivity](https://github.com/pryv/app-android-example/blob/master/app/src/main/java/com/pryv/appAndroidExample/activities/MainActivity.java).
