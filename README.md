@@ -50,7 +50,7 @@ dependencies {
 }
 ```
 
-Moreover, do not forget to add the Internet permission in your **AndroidManifest.xml** as follow:
+Moreover, do not forget to add the ***Internet permission*** in your **AndroidManifest.xml** as follow:
 
 ```android
 <uses-permission android:name="android.permission.INTERNET" />
@@ -65,13 +65,9 @@ You will need to copy the following classes in your project:
 **LoginActivity** will handle all the process of account creation and login through a WebView.
 As soon as a login is successful, a pair of username and token will be stored in the Android SharedPreferences using a **Credentials** object.
 
-You can load the **LoginActivity** on the push of a login button for example and check if the user is log by calling the function
-```java
-hasCredentials()
-```
-from your **Credentials** object.
+You can load the **LoginActivity** on the push of a login button for example and check if the user is log by calling the function ***hasCredentials()*** from your **Credentials** object.
 
-Note that you can modify **LoginActivity** to adapt the domain to use and app ID:
+Note that you can modify **LoginActivity** to adapt the domain and app ID to be used:
 
 ```java
 public final static String DOMAIN = "pryv.me";
@@ -83,7 +79,7 @@ public final static String APPID = "app-android-skeleton";
 Now, copy [**AndroidConnection**](https://github.com/pryv/app-android-example/blob/master/app/src/main/java/com/pryv/appAndroidExample/AndroidConnection.java) in your project.
 
 This class will create a connection with your Pryv account and handle the creation and manipulation of Events and Streams.
-For all these tasks, use the singleton that you can get anywhere in your app by calling
+For all these tasks, use the singleton that you can get anywhere in your app by calling:
 ```java
 AndroidConnection.sharedInstance()
 ```
@@ -113,7 +109,7 @@ AndroidConnection.sharedInstance().retrieveEvents(containerStream);
 
 ## UI notifications
 
-Retrieving Events from your Pryv is a first step but you surely want to print them in your user interface.
+Creating Events is a first step but you surely want to inform the user when this is done.
 To do so, you will need to configure your own message ***Handler***, which will be used by the ***AndroidConnection*** to notify the UI.
 
 Here is an example of a simple Handler, which will pop the string content of any received notification:
@@ -127,7 +123,7 @@ private final Handler notificationHandler = new Handler() {
     };
 ```
 
-Then, set up the notifications providing your Handler:
+Then, set up the notifications by providing your Handler:
 ```java
 AndroidConnection.sharedInstance().setNotifications(notificationHandler);
 ```
