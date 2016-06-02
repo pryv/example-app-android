@@ -1,4 +1,4 @@
-package com.pryv.appAndroidExample.activities;
+package com.pryv.appAndroidExample;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,10 +12,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.pryv.appAndroidExample.AndroidConnection;
 import com.pryv.appAndroidExample.Credentials;
+import com.pryv.appAndroidExample.LoginActivity;
 import com.pryv.appAndroidExample.R;
 import com.pryv.model.Stream;
 

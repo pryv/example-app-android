@@ -1,4 +1,4 @@
-package com.pryv.appAndroidExample.activities;
+package com.pryv.appAndroidExample;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -11,8 +11,6 @@ import android.view.View;
 import android.webkit.WebView;
 
 import com.pryv.Pryv;
-import com.pryv.appAndroidExample.Credentials;
-import com.pryv.appAndroidExample.R;
 import com.pryv.auth.AuthController;
 import com.pryv.auth.AuthView;
 import com.pryv.model.Permission;
