@@ -2,7 +2,7 @@
 
 Android example to build an app that will access your data on pryv.io using the [Pryv Java library](https://github.com/pryv/lib-java)
 
-This sample app contains the code that provides the login to your pryv account on the platform that you will have defined [here](https://github.com/pryv/app-android-example/blob/master/app/src/main/java/com/pryv/appAndroidExample/activities/LoginActivity.java#L37).
+This sample app contains the code that provides the login to your pryv account on the platform that you will have defined [here](https://github.com/pryv/app-android-example/blob/master/app/src/main/java/com/pryv/appAndroidExample/LoginActivity.java#L35).
 For example, when using the pryv.me demo platform:
 
 ```java
@@ -59,7 +59,7 @@ Moreover, do not forget to add the ***Internet permission*** in your **AndroidMa
 ### Login to your Pryv
 
 You will need to copy the following classes in your project:
-[**LoginActivity**](https://github.com/pryv/app-android-example/blob/master/app/src/main/java/com/pryv/appAndroidExample/activities/LoginActivity.java) and
+[**LoginActivity**](https://github.com/pryv/app-android-example/blob/master/app/src/main/java/com/pryv/appAndroidExample/LoginActivity.java) and
 [**Credentials**](https://github.com/pryv/app-android-example/blob/master/app/src/main/java/com/pryv/appAndroidExample/Credentials.java).
 
 **LoginActivity** will handle all the process of account creation and login through a WebView.
@@ -129,7 +129,7 @@ AndroidConnection.sharedInstance().setNotifications(notificationHandler);
 ```
 
 Of course, you need to configure in parallel the triggering of these notifications.
-This can be done in ***AndroidConnection*** by defining the following callbacks: ***EventsCallback***, ***StreamsCallback*** and ***GetEventsCallback***.
+This can be done in ***AndroidConnection*** by defining the following callbacks: ***EventsCallback***, ***StreamsCallback***, ***GetEventsCallback*** and ***GetStreamsCallback***.
 
 Here is an example of callback definition that will trigger the Handler we configured previously to inform the user about the result of an Event creation:
 
@@ -173,4 +173,4 @@ private void notifyUI(String notification) {
 
 ### Further explanations
 
-If you still have misunderstandings when integrating Pryv into your app or if you want to see more concrete examples, do not hesitate to take a look at the sample [MainActivity](https://github.com/pryv/app-android-example/blob/master/app/src/main/java/com/pryv/appAndroidExample/activities/MainActivity.java).
+If you still have misunderstandings when integrating Pryv into your app or if you want to see more concrete examples, do not hesitate to take a look at the sample [MainActivity](https://github.com/pryv/app-android-example/blob/master/app/src/main/java/com/pryv/appAndroidExample/MainActivity.java).
