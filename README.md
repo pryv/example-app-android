@@ -129,7 +129,7 @@ AndroidConnection.sharedInstance().setNotifications(notificationHandler);
 ```
 
 Of course, you need to configure in parallel the triggering of these notifications.
-This can be done in ***AndroidConnection*** by redifining the following callbacks: ***EventsCallback***, ***StreamsCallback*** and ***GetEventsCallback***.
+This can be done in ***AndroidConnection*** by defining the following callbacks: ***EventsCallback***, ***StreamsCallback*** and ***GetEventsCallback***.
 
 Here is an example of callback definition that will trigger the Handler we configured previously to inform the user about the result of an Event creation:
 
