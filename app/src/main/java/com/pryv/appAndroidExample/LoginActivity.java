@@ -33,7 +33,7 @@ public class LoginActivity extends Activity {
 
     private String errorMessage = "Unknown error";
     public final static String DOMAIN = "pryv.me";
-    public final static String APPID = "app-android-skeleton";
+    public final static String APPID = "app-android-example";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
