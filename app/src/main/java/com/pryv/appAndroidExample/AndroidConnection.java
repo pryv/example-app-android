@@ -35,7 +35,7 @@ public class AndroidConnection {
     public final static int NOTIFICATION_TYPE_MESSAGE = 1;
     public final static int NOTIFICATION_TYPE_EVENTS = 2;
 
-    public static AndroidConnection sharedInstance() {
+    public static AndroidConnection getSharedInstance() {
         if(singleton==null) {
             singleton = new AndroidConnection();
         }
@@ -53,12 +53,12 @@ public class AndroidConnection {
     }
 
     /**
-     * Save a new event to Pryv
+     * Create a new event on Pryv
      * @param streamId: id of the stream containing the new event
      * @param type: type of the new event
      * @param content: content of the new event
      */
-    public void saveEvent(String streamId, String type, String content) {
+    public void createEvent(String streamId, String type, String content) {
         if(connection==null) {
             notifyUI("Need login!");
             Log.e("Pryv","Need login!");
@@ -68,11 +68,11 @@ public class AndroidConnection {
     }
 
     /**
-     * Save a new stream to Pryv
+     * Create a new stream on Pryv
      * @param streamId: id of the new stream
      * @param streamName: name of the new stream
      */
-    public Stream saveStream(String streamId, String streamName) {
+    public Stream createStream(String streamId, String streamName) {
         Stream stream = null;
         if(connection==null) {
             notifyUI("Need login!");
@@ -85,10 +85,10 @@ public class AndroidConnection {
     }
 
     /**
-     * Retrieve all events from Pryv according to some filter
+     * Get all events from Pryv according to some filter
      * @param stream: filter events by stream
      */
-    public void retrieveEvents(Stream stream) {
+    public void getEvents(Stream stream) {
         if(connection == null) {
             notifyUI("Need login!");
             Log.e("Pryv", "Need login!");

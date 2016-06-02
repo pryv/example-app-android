@@ -81,30 +81,30 @@ Now, copy [**AndroidConnection**](https://github.com/pryv/app-android-example/bl
 This class will create a connection with your Pryv account and handle the creation and manipulation of Events and Streams.
 For all these tasks, use the singleton that you can get anywhere in your app by calling:
 ```java
-AndroidConnection.sharedInstance()
+AndroidConnection.getSharedInstance()
 ```
 
 First of all, you need to initialize the connection by providing the credentials previously stored during the login phase:
 ```java
 Credentials credentials = new Credentials(MainActivity.this);
-AndroidConnection.sharedInstance().setConnection(credentials.getUsername(), credentials.getToken());
+AndroidConnection.getSharedInstance().setConnection(credentials.getUsername(), credentials.getToken());
 ```
 
 You can then use the following functions:
 
 ***Create a Stream:***
 ```java
-Stream testStream = AndroidConnection.sharedInstance().saveStream("StreamId", "StreamName");
+Stream testStream = AndroidConnection.getSharedInstance().createStream("StreamId", "StreamName");
 ```
 
 ***Create an Event:***
 ```java
-AndroidConnection.sharedInstance().saveEvent("StreamId", "EventType", "Content");
+AndroidConnection.getSharedInstance().createEvent("StreamId", "EventType", "Content");
 ```
 
-***Retrieve Events:***
+***Get Events:***
 ```java
-AndroidConnection.sharedInstance().retrieveEvents(containerStream);
+AndroidConnection.getSharedInstance().getEvents(containerStream);
 ```
 
 ### UI notifications

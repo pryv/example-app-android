@@ -13,10 +13,6 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.pryv.appAndroidExample.AndroidConnection;
-import com.pryv.appAndroidExample.Credentials;
-import com.pryv.appAndroidExample.LoginActivity;
-import com.pryv.appAndroidExample.R;
 import com.pryv.model.Stream;
 
 import java.util.ArrayList;
@@ -82,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
                     progressView.setText(TOO_LONG_ERROR);
                 } else {
                     noteText.setText("");
-                    AndroidConnection.sharedInstance().saveEvent(noteStream.getId(), NOTE_EVENT_TYPE, text);
+                    AndroidConnection.getSharedInstance().createEvent(noteStream.getId(), NOTE_EVENT_TYPE, text);
                 }
             } else {
                 progressView.setText(TOO_SHORT_ERROR);
@@ -98,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public void retrieveNotes(View v) {
         if(credentials.hasCredentials()) {
-            AndroidConnection.sharedInstance().retrieveEvents(noteStream);
+            AndroidConnection.getSharedInstance().getEvents(noteStream);
         } else {
             startLogin();
         }
@@ -111,10 +107,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void initPryvConnection() {
         // Initiate the connection to Pryv, providing handler which will update UI
-        AndroidConnection.sharedInstance().setConnection(credentials.getUsername(), credentials.getToken());
-        AndroidConnection.sharedInstance().setNotifications(notificationHandler);
+        AndroidConnection.getSharedInstance().setConnection(credentials.getUsername(), credentials.getToken());
+        AndroidConnection.getSharedInstance().setNotifications(notificationHandler);
         // Initiate a "Notes" stream containing notes if not already created
-        noteStream = AndroidConnection.sharedInstance().saveStream(NOTE_STREAM_ID, NOTE_STREAM_NAME);
+        noteStream = AndroidConnection.getSharedInstance().createStream(NOTE_STREAM_ID, NOTE_STREAM_NAME);
     }
 
     private final Handler notificationHandler = new Handler() {
