@@ -10,6 +10,7 @@ import com.pryv.Filter;
 import com.pryv.database.DBinitCallback;
 import com.pryv.interfaces.EventsCallback;
 import com.pryv.interfaces.GetEventsCallback;
+import com.pryv.interfaces.GetStreamsCallback;
 import com.pryv.interfaces.StreamsCallback;
 import com.pryv.model.Event;
 import com.pryv.model.Stream;
@@ -29,6 +30,7 @@ public class AndroidConnection {
     private EventsCallback eventsCallback;
     private GetEventsCallback getEventsCallback;
     private StreamsCallback streamsCallback;
+    private GetStreamsCallback getStreamsCallback;
 
     public static AndroidConnection singleton;
 
@@ -59,10 +61,7 @@ public class AndroidConnection {
      * @param content: content of the new event
      */
     public void createEvent(String streamId, String type, String content) {
-        if(connection==null) {
-            notifyUI("Need login!");
-            Log.e("Pryv","Need login!");
-        } else {
+        if(checkLogin()) {
             connection.events.create(new Event(streamId, null, type, content), eventsCallback);
         }
     }
@@ -74,10 +73,7 @@ public class AndroidConnection {
      */
     public Stream createStream(String streamId, String streamName) {
         Stream stream = null;
-        if(connection==null) {
-            notifyUI("Need login!");
-            Log.e("Pryv", "Need login!");
-        } else {
+        if(checkLogin()) {
             stream = new Stream(streamId,streamName);
             connection.streams.create(stream, streamsCallback);
         }
@@ -89,14 +85,31 @@ public class AndroidConnection {
      * @param stream: filter events by stream
      */
     public void getEvents(Stream stream) {
-        if(connection == null) {
-            notifyUI("Need login!");
-            Log.e("Pryv", "Need login!");
-        } else {
+        if(checkLogin()) {
             Filter filter = new Filter();
             filter.addStream(stream);
             connection.events.get(filter, getEventsCallback);
         }
+    }
+
+    /**
+     * Get all streams from Pryv according to some filter
+     * @param parent: filter streams by stream parent
+     */
+    public void getStreams(Stream parent) {
+        if(checkLogin()) {
+            Filter filter = new Filter();
+            filter.addStream(parent);
+            connection.streams.get(filter, getStreamsCallback);
+        }
+    }
+
+    private boolean checkLogin() {
+        if(connection == null) {
+            notifyUI("Need login!");
+            Log.e("Pryv", "Need login!");
+        }
+        return (connection != null);
     }
 
     /**
@@ -138,7 +151,7 @@ public class AndroidConnection {
      */
     private void setCallbacks() {
 
-        //Called when action related to events creation/modification complete
+        //Called when actions related to events creation/modification complete
         eventsCallback = new EventsCallback() {
 
             @Override
@@ -166,7 +179,7 @@ public class AndroidConnection {
             }
         };
 
-        //Called when action related to streams complete
+        //Called when actions related to streams creation/modification complete
         streamsCallback = new StreamsCallback() {
 
             @Override
@@ -191,7 +204,7 @@ public class AndroidConnection {
 
         };
 
-        //Called when action related to events retrieval
+        //Called when actions related to events retrieval complete
         getEventsCallback = new GetEventsCallback() {
             @Override
             public void cacheCallback(List<Event> list, Map<String, Double> map) {
@@ -214,6 +227,30 @@ public class AndroidConnection {
             @Override
             public void onApiError(String s, Double aDouble) {
                 notifyUI(s);
+                Log.e("Pryv", s);
+            }
+        };
+
+        //Called when actions related to streams retrieval complete
+        getStreamsCallback = new GetStreamsCallback() {
+
+            @Override
+            public void cacheCallback(Map<String, Stream> map, Map<String, Double> map1) {
+                Log.i("Pryv", map.size() + " streams retrieved from cache.");
+            }
+
+            @Override
+            public void onCacheError(String s) {
+                Log.e("Pryv", s);
+            }
+
+            @Override
+            public void apiCallback(Map<String, Stream> map, Map<String, Double> map1, Double aDouble) {
+                Log.i("Pryv", map.size() + " streams retrieved from API.");
+            }
+
+            @Override
+            public void onApiError(String s, Double aDouble) {
                 Log.e("Pryv", s);
             }
         };

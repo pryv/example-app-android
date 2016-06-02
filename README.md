@@ -107,6 +107,11 @@ AndroidConnection.getSharedInstance().createEvent("StreamId", "EventType", "Cont
 AndroidConnection.getSharedInstance().getEvents(containerStream);
 ```
 
+***Get Streams:***
+```java
+AndroidConnection.getSharedInstance().getStreams(parentStream);
+```
+
 ### UI notifications
 
 Creating Events is a first step but you surely want to inform the user when this is done.
