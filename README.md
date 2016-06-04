@@ -61,6 +61,7 @@ Moreover, do not forget to add the ***Internet permission*** in your **AndroidMa
 You will need to copy the following classes in your project:
 [**LoginActivity**](https://github.com/pryv/app-android-example/blob/master/app/src/main/java/com/pryv/appAndroidExample/LoginActivity.java) and
 [**Credentials**](https://github.com/pryv/app-android-example/blob/master/app/src/main/java/com/pryv/appAndroidExample/Credentials.java).
+Do not forget to declare the ***LoginActivity*** in your manifest and also copy the corresponding xml file.
 
 **LoginActivity** will handle all the process of account creation and login through a WebView.
 As soon as a login is successful, a pair of username and token will be stored in the Android SharedPreferences using a **Credentials** object.
