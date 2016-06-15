@@ -1,7 +1,6 @@
 package com.pryv.appAndroidExample;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -18,18 +17,13 @@ import com.pryv.utils.Logger;
 
 import java.lang.ref.WeakReference;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Collection;
 import java.util.Set;
 
 public class SQLiteDBHelper extends SQLiteOpenHelper {
 
-    // JAVA
     private final String initDBerrorMessage = "Database initialization error: ";
-    // the DB Connection
-    private Connection dbConnection;
     // weak reference to Pryv's Connection
     private WeakReference<com.pryv.Connection> weakConnection;
     private Filter scope;
@@ -38,10 +32,7 @@ public class SQLiteDBHelper extends SQLiteOpenHelper {
     private Logger logger = Logger.getInstance();
     private DBinitCallback initCallback;
 
-    // ANDROID
     private static final int DATABASE_VERSION = 1;
-    private static final String TABLE_EVENTS = "events";
-    private static final String KEY_CONTENT = "content";
     private SQLiteDatabase db;
 
     /**
@@ -84,10 +75,10 @@ public class SQLiteDBHelper extends SQLiteOpenHelper {
     // Upgrading database
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Drop older table if existed
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_EVENTS);
-        // Create tables again
-        onCreate(db);
+        // TODO: Drop older table if existed
+        // db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        // TODO: Create tables again
+        // onCreate(db);
     }
 
     /**
