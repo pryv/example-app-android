@@ -43,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
     private BaseAdapter adapter;
     private ArrayList<String> retrievedEvents;
 
+    private SQLiteDBHelper db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
         } else {
             setLoginView();
         }
+
+        db = new SQLiteDBHelper(this);
     }
 
     /**
@@ -107,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initPryvConnection() {
         // Initiate the connection to Pryv, providing handler which will update UI
-        AndroidConnection.getSharedInstance().setConnection(credentials.getUsername(), credentials.getToken());
+        AndroidConnection.getSharedInstance().setConnection(credentials.getUsername(), credentials.getToken(), this);
         AndroidConnection.getSharedInstance().setNotifications(notificationHandler);
         // Initiate a "Notes" stream containing notes if not already created
         noteStream = AndroidConnection.getSharedInstance().createStream(NOTE_STREAM_ID, NOTE_STREAM_NAME);
