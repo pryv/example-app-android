@@ -56,8 +56,6 @@ public class SQLiteDBHelper extends SQLiteOpenHelper {
      * @param weakConnection
      * @param initCallback    callback to notify failure
      */
-    // TODO: Track db creation exception => callback
-    // TODO: Take care of statement.execute VS statement.executeUpdate => rawSQL !
     public SQLiteDBHelper(Context context, Filter scope, String cacheFolderPath, OnlineEventsAndStreamsManager api,
                           WeakReference<com.pryv.Connection> weakConnection,
                           DBinitCallback initCallback) {
@@ -124,7 +122,6 @@ public class SQLiteDBHelper extends SQLiteOpenHelper {
         db.execSQL(cmd);
     }
 
-    // TODO: public void update(final UpdateCacheCallback updateCacheCallback) {...}
     /**
      * method used to update the cache with data obtained from the Pryv online API
      *
@@ -283,7 +280,6 @@ public class SQLiteDBHelper extends SQLiteOpenHelper {
                     Cursor result = db.rawQuery(fetchCmd,null);
                     if (result.moveToFirst()) {
                         do {
-                            // TODO: Event retrievedEvent = Event.createOrReuse(result);
                             Event retrievedEvent = getEventFromCursor(result);
                             if (retrievedEvent.isTrashed() == true) {
                                 // delete really
@@ -345,7 +341,6 @@ public class SQLiteDBHelper extends SQLiteOpenHelper {
                     List<Event> retrievedEvents = new ArrayList<Event>();
                     if (result.moveToFirst()) {
                         do {
-                            //TODO: Event retrievedEvent = Event.createOrReuse(result);
                             Event retrievedEvent = getEventFromCursor(result);
                             retrievedEvents.add(retrievedEvent);
                         } while (result.moveToNext());
@@ -510,7 +505,6 @@ public class SQLiteDBHelper extends SQLiteOpenHelper {
                                     if (result.moveToFirst()) {
                                         do {
                                             try {
-                                                // TODO: updateEvent = Event.createOrReuse(result);
                                                 updateEvent = getEventFromCursor(result);
                                                 updateEvent.setStreamId(parentId);
                                                 updateEvent(updateEvent, null);
@@ -656,7 +650,6 @@ public class SQLiteDBHelper extends SQLiteOpenHelper {
         }.start();
     }
 
-    // TODO: Check for null when calling set...
     private Stream getStreamFromCursor(Cursor c) {
         String id = c.getString(c.getColumnIndex(QueryGenerator.STREAMS_ID_KEY));
         String name = c.getString(c.getColumnIndex(QueryGenerator.STREAMS_NAME_KEY));
@@ -673,8 +666,7 @@ public class SQLiteDBHelper extends SQLiteOpenHelper {
         return stream;
     }
 
-    // TODO: Check for null when calling set...
-    // TODO: Remove tempRefId?
+    // TODO: Check supervisor !!! see Event.createOrReuse(result);
     private Event getEventFromCursor(Cursor c) throws IOException {
         String clientId = c.getString(c.getColumnIndex(QueryGenerator.EVENTS_CLIENT_ID_KEY));
         String id = c.getString(c.getColumnIndex(QueryGenerator.EVENTS_ID_KEY));
@@ -692,11 +684,11 @@ public class SQLiteDBHelper extends SQLiteOpenHelper {
         String description = c.getString(c.getColumnIndex(QueryGenerator.EVENTS_DESCRIPTION_KEY));
         String clientData = c.getString(c.getColumnIndex(QueryGenerator.EVENTS_CLIENT_DATA_KEY));
         Boolean trashed = c.getInt(c.getColumnIndex(QueryGenerator.EVENTS_TRASHED_KEY)) > 0 ;
-        String attachement = c.getString(c.getColumnIndex(QueryGenerator.EVENTS_ATTACHMENTS_KEY));;
+        String attachment = c.getString(c.getColumnIndex(QueryGenerator.EVENTS_ATTACHMENTS_KEY));
         Event event = new Event(clientId, id, streamId, time, duration, type, content, null, null, description, null, null, trashed, created, createdBy, modified, modifiedBy, null);
         event.setTags(new HashSet<String>(Arrays.asList(tagsString.split(","))));
         event.setReferences(new HashSet<String>(Arrays.asList(referencesString.split(","))));
-        event.setAttachments(JsonConverter.deserializeAttachments(attachement));
+        event.setAttachments(JsonConverter.deserializeAttachments(attachment));
         event.setClientDataFromAstring(clientData);
         return event;
     }
