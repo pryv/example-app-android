@@ -9,6 +9,7 @@ import android.util.Log;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pryv.Connection;
 import com.pryv.Filter;
+import com.pryv.SQLiteDBHelper;
 import com.pryv.database.DBinitCallback;
 import com.pryv.interfaces.EventsCallback;
 import com.pryv.interfaces.GetEventsCallback;
@@ -39,8 +40,6 @@ public class AndroidConnection {
     public final static int NOTIFICATION_TYPE_MESSAGE = 1;
     public final static int NOTIFICATION_TYPE_EVENTS = 2;
 
-    private SQLiteDBHelper db;
-
     public static AndroidConnection getSharedInstance() {
         if(singleton==null) {
             singleton = new AndroidConnection();
@@ -51,8 +50,7 @@ public class AndroidConnection {
     public void setConnection (String username, String token, Context context) {
         setCallbacks();
         // Initiate new connection to Pryv with connected account
-        connection = new Connection(username, token, LoginActivity.DOMAIN, false, new DBinitCallback());
-        db = new SQLiteDBHelper(context);
+        connection = new Connection(context, username, token, LoginActivity.DOMAIN, true, new DBinitCallback());
     }
 
     public void setNotifications(Handler handler) {
@@ -69,11 +67,6 @@ public class AndroidConnection {
         if(checkLogin()) {
             Event event = new Event(streamId, null, type, content);
             connection.events.create(event, eventsCallback);
-            try {
-                db.createEvent(event);
-            } catch (JsonProcessingException e) {
-                Log.d("Database exception: ", e.toString());
-            }
         }
     }
 

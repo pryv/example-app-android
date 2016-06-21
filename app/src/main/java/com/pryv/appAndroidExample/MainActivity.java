@@ -43,8 +43,6 @@ public class MainActivity extends AppCompatActivity {
     private BaseAdapter adapter;
     private ArrayList<String> retrievedEvents;
 
-    private SQLiteDBHelper db;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,8 +64,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             setLoginView();
         }
-
-        db = new SQLiteDBHelper(this);
     }
 
     /**

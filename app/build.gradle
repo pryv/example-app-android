@@ -33,12 +33,6 @@ android {
     }
 }
 
-repositories {
-    maven {
-        url "https://jitpack.io"
-    }
-}
-
 /* Rebuild every run
 configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
@@ -47,14 +41,12 @@ configurations.all {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestCompile 'com.android.support.test:runner:0.5'
-    androidTestCompile 'com.android.support.test:rules:0.5'
-    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
-    androidTestCompile 'com.android.support.test.espresso:espresso-web:2.2.2'
-    androidTestCompile 'com.android.support.test.espresso:espresso-intents:2.2.2'
-    androidTestCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.1.1'
-    compile 'com.android.support:design:23.1.1'
-    compile 'com.android.support:support-v4:23.1.1'
-    compile 'com.github.Pryv:lib-java:master-SNAPSHOT'
+    compile "com.android.support:support-v4:23.0.1"
+    compile "com.android.support:appcompat-v7:23.0.1"
+
+    // Use this to target master
+    // compile 'com.github.Pryv:lib-java:master-SNAPSHOT'
+
+    // Use this to target release tag
+    compile 'com.github.tmodoux:android-lib:-SNAPSHOT'
 }
