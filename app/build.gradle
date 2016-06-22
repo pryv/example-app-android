@@ -48,5 +48,5 @@ dependencies {
     // compile 'com.github.Pryv:lib-java:master-SNAPSHOT'
 
     // Use this to target release tag
-    compile 'com.github.tmodoux:android-lib:-SNAPSHOT'
+    compile 'com.github.tmodoux:android-lib:v3.2'
 }
