@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
     private void initPryvConnection() {
         setCallbacks();
         // Initiate new connection to Pryv with connected account
-        connection = new Connection(this, credentials.getUsername(), credentials.getToken(), LoginActivity.DOMAIN, true, new DBinitCallback());
+        connection = new Connection(MainActivity.this, credentials.getUsername(), credentials.getToken(), LoginActivity.DOMAIN, true, new DBinitCallback());
         notifier = new UINotifier(notificationHandler);
         // Initiate a "Notes" stream containing notes if not already created
         noteStream = new Stream(NOTE_STREAM_ID, NOTE_STREAM_NAME);

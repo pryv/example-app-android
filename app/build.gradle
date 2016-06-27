@@ -54,6 +54,5 @@ dependencies {
     // compile 'com.github.Pryv:lib-java:master-SNAPSHOT'
 
     // Use this to target release tag
-    compile 'com.pryv.lib-java:commons:0.2.0'
     compile 'com.pryv.lib-java:android-specific:0.2.0'
 }

@@ -50,7 +50,7 @@ dependencies {
 }
 ```
 
-Moreover, do not forget to add the ***Internet permission*** in your **AndroidManifest.xml** as follow:
+Moreover, do not forget to add the ***Internet permission*** in your ***AndroidManifest.xml*** as follow:
 
 ```android
 <uses-permission android:name="android.permission.INTERNET" />
@@ -59,14 +59,14 @@ Moreover, do not forget to add the ***Internet permission*** in your **AndroidMa
 ### Login to your Pryv
 
 You will need to copy the following classes in your project:
-[**LoginActivity**](https://github.com/pryv/app-android-example/blob/master/app/src/main/java/com/pryv/appAndroidExample/LoginActivity.java) and
-[**Credentials**](https://github.com/pryv/app-android-example/blob/master/app/src/main/java/com/pryv/appAndroidExample/Credentials.java).
+[***LoginActivity***](https://github.com/pryv/app-android-example/blob/master/app/src/main/java/com/pryv/appAndroidExample/LoginActivity.java) and
+[***Credentials***](https://github.com/pryv/app-android-example/blob/master/app/src/main/java/com/pryv/appAndroidExample/Credentials.java).
 Do not forget to declare the ***LoginActivity*** in your manifest and also copy the corresponding xml file.
 
-**LoginActivity** will handle all the process of account creation and login through a WebView.
-As soon as a login is successful, a pair of username and token will be stored in the Android SharedPreferences using a **Credentials** object.
+***LoginActivity*** will handle all the process of account creation and login through a WebView.
+As soon as a login is successful, a pair of username and token will be stored in the Android SharedPreferences using a ***Credentials*** object.
 
-You can load the **LoginActivity** on the push of a login button for example and check if the user is log by calling the function ***hasCredentials()*** from your **Credentials** object.
+You can load the **LoginActivity** on the push of a login button for example and check if the user is log by calling the function ***hasCredentials()*** from your ***Credentials*** object.
 
 Note that you can modify **LoginActivity** to adapt the domain and app ID to be used:
 
@@ -77,46 +77,51 @@ public final static String APPID = "app-android-example";
 
 ### Interacting with your Pryv
 
-Now, copy [**AndroidConnection**](https://github.com/pryv/app-android-example/blob/master/app/src/main/java/com/pryv/appAndroidExample/AndroidConnection.java) in your project.
-
-This class will create a connection with your Pryv account and handle the creation and manipulation of Events and Streams.
-For all these tasks, use the singleton that you can get anywhere in your app by calling:
-```java
-AndroidConnection.getSharedInstance()
-```
+There is still few necessary additions to be made in your ***MainActivity***.
 
 First of all, you need to initialize the connection by providing the credentials previously stored during the login phase:
 ```java
 Credentials credentials = new Credentials(MainActivity.this);
 AndroidConnection.getSharedInstance().setConnection(credentials.getUsername(), credentials.getToken());
+Connection connection = new Connection(MainActivity.this, credentials.getUsername(), credentials.getToken(), LoginActivity.DOMAIN, true, new DBinitCallback());
 ```
 
 You can then use the following functions:
 
 ***Create a Stream:***
 ```java
-Stream testStream = AndroidConnection.getSharedInstance().createStream("StreamId", "StreamName");
+Stream containerStream = new Stream("StreamID", "StreamName");
+connection.streams.create(containerStream, streamsCallback);
 ```
 
 ***Create an Event:***
 ```java
-AndroidConnection.getSharedInstance().createEvent("StreamId", "EventType", "Content");
+String streamId = "StreamID";
+String eventType = "note/txt";
+String content = "Some text";
+connection.events.create(new Event(streamId, null, eventType, content), eventsCallback);
 ```
 
 ***Get Events:***
 ```java
-AndroidConnection.getSharedInstance().getEvents(containerStream);
+Stream containerStream = new Stream("StreamID", "StreamName");
+Filter filter = new Filter();
+filter.addStream(containerStream);
+connection.events.get(filter, getEventsCallback);
 ```
 
 ***Get Streams:***
 ```java
-AndroidConnection.getSharedInstance().getStreams(parentStream);
+Stream parentStream = new Stream("StreamID", "StreamName");
+Filter filter = new Filter();
+filter.addStream(parentStream);
+connection.streams.get(filter, getStreamsCallback);
 ```
 
 ### UI notifications
 
 Creating Events is a first step but you surely want to inform the user when this is done.
-To do so, you will need to configure your own message ***Handler***, which will be used by the ***AndroidConnection*** to notify the UI.
+To do so, you will need to configure your own message ***Handler*** in your ***MainActivity***, which will be used by a ***UINotifier*** to notify the UI.
 
 Here is an example of a simple Handler, which will pop the string content of any received notification:
 
@@ -131,11 +136,12 @@ private final Handler notificationHandler = new Handler() {
 
 Then, set up the notifications by providing your Handler:
 ```java
-AndroidConnection.sharedInstance().setNotifications(notificationHandler);
+UINotifier notifier = new UINotifier(notificationHandler);
 ```
 
 Of course, you need to configure in parallel the triggering of these notifications.
-This can be done in ***AndroidConnection*** by defining the following callbacks: ***EventsCallback***, ***StreamsCallback***, ***GetEventsCallback*** and ***GetStreamsCallback***.
+This can be done in your ***MainActivity*** by defining the following callbacks: ***EventsCallback***, ***StreamsCallback***, ***GetEventsCallback*** and ***GetStreamsCallback***
+and in ***UINotifier*** by defining the ***notify*** function.
 
 Here is an example of callback definition that will trigger the Handler we configured previously to inform the user about the result of an Event creation:
 
@@ -143,30 +149,30 @@ Here is an example of callback definition that will trigger the Handler we confi
 private EventsCallback eventsCallback = new EventsCallback() {
 	@Override
 	public void onApiSuccess(String s, Event event, String s1, Double aDouble) {
-		notifyUI(s);
+		notifier.notify(s);
 		Log.i("Pryv", s);
 	}
 
 	@Override
 	public void onApiError(String s, Double aDouble) {
-		notifyUI(s);
+		notifier.notify(s);
 		Log.e("Pryv", s);
 	}
 
 	@Override
 	public void onCacheSuccess(String s, Event event) {
-		notifyUI(s);
+		notifier.notify(s);
 		Log.i("Pryv", s);
 	}
 
 	@Override
 	public void onCacheError(String s) {
-		notifyUI(s);
+		notifier.notify(s);
 		Log.e("Pryv", s);
 	}
 };
 
-private void notifyUI(String notification) {
+public void notify(String notification) {
         if(notificationHandler!=null) {
             Bundle b = new Bundle();
             b.putString("content", notification);
