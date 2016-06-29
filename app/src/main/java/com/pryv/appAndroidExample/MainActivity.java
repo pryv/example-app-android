@@ -132,6 +132,9 @@ public class MainActivity extends AppCompatActivity {
         notifier = new UINotifier(notificationHandler);
         // Initiate a "Notes" stream containing notes if not already created
         noteStream = new Stream(NOTE_STREAM_ID, NOTE_STREAM_NAME);
+        Filter scope = new Filter();
+        scope.addStream(noteStream);
+        connection.setupCacheScope(scope);
         connection.streams.create(noteStream, streamsCallback);
     }
 
