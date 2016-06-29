@@ -47,12 +47,11 @@ repositories {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile "com.android.support:support-v4:23.0.1"
-    compile "com.android.support:appcompat-v7:23.0.1"
-
+    compile 'com.android.support:support-v4:23.0.1'
+    compile 'com.android.support:appcompat-v7:23.0.1'
     // Use this to target master
     // compile 'com.github.Pryv:lib-java:master-SNAPSHOT'
-
     // Use this to target release tag
-    compile 'com.pryv.lib-java:android-specific:0.2.0'
+    // compile 'com.pryv.lib-java:android-specific:0.2.0'
+    compile project(':android-specific')
 }
