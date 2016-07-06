@@ -41,7 +41,7 @@ configurations.all {
 
 repositories {
     maven {
-        url 'https://dl.bintray.com/tmodoux/maven/'
+        url 'https://dl.bintray.com/techpryv/maven/'
     }
 }
 
@@ -52,6 +52,6 @@ dependencies {
     // Use this to target master
     // compile 'com.github.Pryv:lib-java:master-SNAPSHOT'
     // Use this to target release tag
-    // compile 'com.pryv.lib-java:android-specific:0.2.0'
-    compile project(':android-specific')
+    compile 'com.pryv:android-specific:0.2.0'
+    // compile project(':android-specific')
 }
