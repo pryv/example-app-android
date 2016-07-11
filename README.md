@@ -82,7 +82,6 @@ There is still few necessary additions to be made in your ***MainActivity***.
 First of all, you need to initialize the connection by providing the credentials previously stored during the login phase:
 ```java
 Credentials credentials = new Credentials(MainActivity.this);
-AndroidConnection.getSharedInstance().setConnection(credentials.getUsername(), credentials.getToken());
 Connection connection = new Connection(MainActivity.this, credentials.getUsername(), credentials.getToken(), LoginActivity.DOMAIN, true, new DBinitCallback());
 ```
 
