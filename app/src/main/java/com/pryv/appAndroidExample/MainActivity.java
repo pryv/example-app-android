@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
                     progressView.setText(TOO_LONG_ERROR);
                 } else {
                     noteText.setText("");
-                    connection.events.create(new Event(noteStream.getId(), null, NOTE_EVENT_TYPE, text), eventsCallback);
+                    connection.events.create(new Event(noteStream.getId(), NOTE_EVENT_TYPE, text), eventsCallback);
                 }
             } else {
                 progressView.setText(TOO_SHORT_ERROR);

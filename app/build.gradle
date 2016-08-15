@@ -21,6 +21,9 @@ android {
     }
 
     packagingOptions {
+        //pickFirst  'META-INF'
+
+        /*
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/LICENSE'
@@ -30,6 +33,7 @@ android {
         exclude 'META-INF/services/com.fasterxml.jackson.core.JsonFactory'
         exclude 'META-INF/maven/com.google.guava/guava/pom.properties'
         exclude 'META-INF/maven/com.google.guava/guava/pom.xml'
+        */
     }
 }
 
