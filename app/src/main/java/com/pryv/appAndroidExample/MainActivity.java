@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.pryv.Connection;
 import com.pryv.Filter;
+import com.pryv.Pryv;
 import com.pryv.database.DBinitCallback;
 import com.pryv.interfaces.EventsCallback;
 import com.pryv.interfaces.GetEventsCallback;
@@ -75,8 +76,8 @@ public class MainActivity extends AppCompatActivity {
         retrievedEvents = new ArrayList<>();
         adapter = new ArrayAdapter(this, R.layout.list_item, retrievedEvents);
         notesList.setAdapter(adapter);
-
         credentials = new Credentials(this);
+
         if(credentials.hasCredentials()) {
             initPryvConnection();
             setLogoutView();

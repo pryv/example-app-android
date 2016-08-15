@@ -37,7 +37,7 @@ First of all, you need to include the [Pryv Java library](https://github.com/pry
 
 Using **Gradle**, use the following :
 ```
-compile 'com.pryv:android:1.0.0'
+compile 'com.pryv:android:1.0.1'
 ```
 
 Using **Maven**, use the following :
@@ -45,14 +45,14 @@ Using **Maven**, use the following :
 <dependency>
   <groupId>com.pryv</groupId>
   <artifactId>android</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <type>pom</type>
 </dependency>
 ```
 
 Using **Ivy**, use the following :
 ```
-<dependency org='com.pryv' name='android' rev='1.0.0'>
+<dependency org='com.pryv' name='android' rev='1.0.1'>
   <artifact name='$AID' ext='pom'></artifact>
 </dependency>
 ```
