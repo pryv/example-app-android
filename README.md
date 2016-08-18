@@ -35,28 +35,6 @@ If you already developed your own Android app and you want to integrate Pryv int
 
 First of all, you need to include the [Pryv Java library](https://github.com/pryv/lib-java) in your project.
 
-Using **Gradle**, use the following :
-```
-compile 'com.pryv:android:1.0.2'
-```
-
-Using **Maven**, use the following :
-```
-<dependency>
-  <groupId>com.pryv</groupId>
-  <artifactId>android</artifactId>
-  <version>1.0.2</version>
-  <type>pom</type>
-</dependency>
-```
-
-Using **Ivy**, use the following :
-```
-<dependency org='com.pryv' name='android' rev='1.0.2'>
-  <artifact name='$AID' ext='pom'></artifact>
-</dependency>
-```
-
 Moreover, do not forget to add the ***Internet permission*** in your ***AndroidManifest.xml*** as follow:
 
 ```android
@@ -92,12 +70,41 @@ Credentials credentials = new Credentials(MainActivity.this);
 Connection connection = new Connection(MainActivity.this, credentials.getUsername(), credentials.getToken(), LoginActivity.DOMAIN, true, new DBinitCallback());
 ```
 
-You can then use the following functions:
+Setting the third parameter to true activate the cache. In this case, you also need to define the cache scope (i.e., set of cached streams) :
+```java
+Filter scope = new Filter();
+scope.addStream(cachedStream);
+connection.setupCacheScope(scope);
+```
+
+You can then use the following functions to manage your events and streams :
 
 ***Create a Stream:***
 ```java
 Stream containerStream = new Stream("StreamID", "StreamName");
-connection.streams.create(containerStream, streamsCallback);
+connection.streams.create(containerStream, new StreamsCallback() {
+
+            @Override
+            public void onApiSuccess(String s, Stream stream, Double aDouble) {
+                Log.i("Pryv", s);
+            }
+
+            @Override
+            public void onApiError(String s, Double aDouble) {
+                Log.e("Pryv", s);
+            }
+
+            @Override
+            public void onCacheSuccess(String s, Stream stream) {
+                Log.i("Pryv", s);
+            }
+
+            @Override
+            public void onCacheError(String s) {
+                Log.e("Pryv", s);
+            }
+
+        });
 ```
 
 ***Create an Event:***
@@ -105,7 +112,32 @@ connection.streams.create(containerStream, streamsCallback);
 String streamId = "StreamID";
 String eventType = "note/txt";
 String content = "Some text";
-connection.events.create(new Event(streamId, null, eventType, content), eventsCallback);
+connection.events.create(new Event(streamId, null, eventType, content), new EventsCallback() {
+
+            @Override
+            public void onApiSuccess(String s, Event event, String s1, Double aDouble) {
+                notifier.notify(s);
+                Log.i("Pryv", s);
+            }
+
+            @Override
+            public void onApiError(String s, Double aDouble) {
+                notifier.notify(s);
+                Log.e("Pryv", s);
+            }
+
+            @Override
+            public void onCacheSuccess(String s, Event event) {
+                notifier.notify(s);
+                Log.i("Pryv", s);
+            }
+
+            @Override
+            public void onCacheError(String s) {
+                notifier.notify(s);
+                Log.e("Pryv", s);
+            }
+        });
 ```
 
 ***Get Events:***
@@ -113,7 +145,27 @@ connection.events.create(new Event(streamId, null, eventType, content), eventsCa
 Stream containerStream = new Stream("StreamID", "StreamName");
 Filter filter = new Filter();
 filter.addStream(containerStream);
-connection.events.get(filter, getEventsCallback);
+connection.events.get(filter, new GetEventsCallback() {
+            @Override
+            public void cacheCallback(List<Event> list, Map<String, Double> map) {
+                Log.i("Pryv", list.size() + " events retrieved from cache.");
+            }
+
+            @Override
+            public void onCacheError(String s) {
+                Log.e("Pryv", s);
+            }
+
+            @Override
+            public void apiCallback(List<Event> list, Map<String, Double> map, Double aDouble) {
+                Log.i("Pryv", list.size() + " events retrieved from API.");
+            }
+
+            @Override
+            public void onApiError(String s, Double aDouble) {
+                Log.e("Pryv", s);
+            }
+        });
 ```
 
 ***Get Streams:***
@@ -121,8 +173,31 @@ connection.events.get(filter, getEventsCallback);
 Stream parentStream = new Stream("StreamID", "StreamName");
 Filter filter = new Filter();
 filter.addStream(parentStream);
-connection.streams.get(filter, getStreamsCallback);
+connection.streams.get(filter, new GetStreamsCallback() {
+
+            @Override
+            public void cacheCallback(Map<String, Stream> map, Map<String, Double> map1) {
+                Log.i("Pryv", map.size() + " streams retrieved from cache.");
+            }
+
+            @Override
+            public void onCacheError(String s) {
+                Log.e("Pryv", s);
+            }
+
+            @Override
+            public void apiCallback(Map<String, Stream> map, Map<String, Double> map1, Double aDouble) {
+                Log.i("Pryv", map.size() + " streams retrieved from API.");
+            }
+
+            @Override
+            public void onApiError(String s, Double aDouble) {
+                Log.e("Pryv", s);
+            }
+        });
 ```
+
+The callbacks ***EventsCallback***, ***StreamsCallback***, ***GetEventsCallback*** and ***GetStreamsCallback*** contain the code to excecute as soon as a request (Create, Get) completes (succeeds or fails).
 
 ### UI notifications
 
@@ -146,8 +221,7 @@ UINotifier notifier = new UINotifier(notificationHandler);
 ```
 
 Of course, you need to configure in parallel the triggering of these notifications.
-This can be done in your ***MainActivity*** by defining the following callbacks: ***EventsCallback***, ***StreamsCallback***, ***GetEventsCallback*** and ***GetStreamsCallback***
-and in ***UINotifier*** by defining the ***notify*** function.
+This can be done in your ***MainActivity*** by redefining the following callbacks: ***EventsCallback***, ***StreamsCallback***, ***GetEventsCallback*** and ***GetStreamsCallback*** and in ***UINotifier*** by defining the ***notify*** function.
 
 Here is an example of callback definition that will trigger the Handler we configured previously to inform the user about the result of an Event creation:
 
