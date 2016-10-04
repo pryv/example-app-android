@@ -112,7 +112,7 @@ connection.streams.create(containerStream, new StreamsCallback() {
 String streamId = "StreamID";
 String eventType = "note/txt";
 String content = "Some text";
-connection.events.create(new Event(streamId, null, eventType, content), new EventsCallback() {
+connection.events.create(new Event(streamId, eventType, content), new EventsCallback() {
 
             @Override
             public void onApiSuccess(String s, Event event, String s1, Double aDouble) {
