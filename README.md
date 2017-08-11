@@ -262,6 +262,7 @@ public void notify(String notification) {
         }
     }
 ```
+_Notes: These callbacks, Handler and UINotifier may seem like a superfluous callback scheme but this is needed. In fact, Android verify that only the thread that created a View can modify it. The requests to Pryv API are excecuted in a different thread than the one handling the UI. Thus, we are using the Handler to make these two threads communicate._
 
 ### Further explanations
 
