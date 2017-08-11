@@ -61,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
     private GetEventsCallback getEventsCallback;
     private StreamsCallback streamsCallback;
     private GetStreamsCallback getStreamsCallback;
-    private UINotifier notifier;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,7 +130,6 @@ public class MainActivity extends AppCompatActivity {
         setCallbacks();
         // Initiate new connection to Pryv with connected account
         connection = new Connection(MainActivity.this, credentials.getUsername(), credentials.getToken(), LoginActivity.DOMAIN, true, new DBinitCallback());
-        notifier = new UINotifier(notificationHandler);
         // Initiate a "Notes" stream containing notes if not already created
         noteStream = new Stream(NOTE_STREAM_ID, NOTE_STREAM_NAME);
         Filter scope = new Filter();
@@ -139,24 +137,6 @@ public class MainActivity extends AppCompatActivity {
         connection.setupCacheScope(scope);
         connection.streams.create(noteStream, streamsCallback);
     }
-
-    private final Handler notificationHandler = new Handler() {
-        public void handleMessage(Message msg) {
-            Bundle b = msg.getData();
-
-            switch(b.getInt("type")) {
-                case UINotifier.NOTIFICATION_TYPE_MESSAGE:
-                    progressView.setText(b.getString("content"));
-                    break;
-                case UINotifier.NOTIFICATION_TYPE_EVENTS:
-                    retrievedEvents.clear();
-                    retrievedEvents.addAll(b.getStringArrayList("content"));
-                    adapter.notifyDataSetChanged();
-                    progressView.setText(NOTES_RETRIEVED_MESSAGE);
-                    break;
-            }
-        }
-    };
 
     private void setLoginView() {
         progressView.setText("Hello guest!");
@@ -191,6 +171,31 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void updateEventsList(final List<Event> events) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ArrayList<String> eventsContent = new ArrayList<>();
+                for(Event e: events) {
+                    eventsContent.add((String)e.getContent());
+                }
+                retrievedEvents.clear();
+                retrievedEvents.addAll(eventsContent);
+                adapter.notifyDataSetChanged();
+                progressView.setText(NOTES_RETRIEVED_MESSAGE);
+            }
+        });
+    }
+
+    private void updateStatusText(final String text) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressView.setText(text);
+            }
+        });
+    }
+
     /**
      * Initiate custom callbacks
      */
@@ -201,25 +206,25 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onApiSuccess(String s, Event event, String s1, Double aDouble) {
-                notifier.notify(s);
+                updateStatusText(s);
                 Log.i("Pryv", s);
             }
 
             @Override
             public void onApiError(String s, Double aDouble) {
-                notifier.notify(s);
+                updateStatusText(s);
                 Log.e("Pryv", s);
             }
 
             @Override
             public void onCacheSuccess(String s, Event event) {
-                notifier.notify(s);
+                updateStatusText(s);
                 Log.i("Pryv", s);
             }
 
             @Override
             public void onCacheError(String s) {
-                notifier.notify(s);
+                updateStatusText(s);
                 Log.e("Pryv", s);
             }
         };
@@ -253,25 +258,25 @@ public class MainActivity extends AppCompatActivity {
         getEventsCallback = new GetEventsCallback() {
             @Override
             public void cacheCallback(List<Event> list, Map<String, Double> map) {
-                notifier.notify(list);
+                updateEventsList(list);
                 Log.i("Pryv", list.size() + " events retrieved from cache.");
             }
 
             @Override
             public void onCacheError(String s) {
-                notifier.notify(s);
+                updateStatusText(s);
                 Log.e("Pryv", s);
             }
 
             @Override
             public void apiCallback(List<Event> list, Map<String, Double> map, Double aDouble) {
-                notifier.notify(list);
+                updateEventsList(list);
                 Log.i("Pryv", list.size() + " events retrieved from API.");
             }
 
             @Override
             public void onApiError(String s, Double aDouble) {
-                notifier.notify(s);
+                updateStatusText(s);
                 Log.e("Pryv", s);
             }
         };
