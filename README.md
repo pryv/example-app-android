@@ -202,67 +202,47 @@ The callbacks ***EventsCallback***, ***StreamsCallback***, ***GetEventsCallback*
 ### UI notifications
 
 Creating Events is a first step but you surely want to inform the user when this is done.
-To do so, you will need to configure your own message ***Handler*** in your ***MainActivity***, which will be used by a ***UINotifier*** to notify the UI.
+This can be done in your ***MainActivity*** by redefining the following callbacks: ***EventsCallback***, ***StreamsCallback***, ***GetEventsCallback*** and ***GetStreamsCallback***.
 
-Here is an example of a simple Handler, which will pop the string content of any received notification:
-
-```java
-private final Handler notificationHandler = new Handler() {
-        public void handleMessage(Message msg) {
-            Bundle b = msg.getData();
-			Toast.makeText(MainActivity.this, b.getString("content"), Toast.LENGTH_SHORT).show();
-        }
-    };
-```
-
-Then, set up the notifications by providing your Handler:
-```java
-UINotifier notifier = new UINotifier(notificationHandler);
-```
-
-Of course, you need to configure in parallel the triggering of these notifications.
-This can be done in your ***MainActivity*** by redefining the following callbacks: ***EventsCallback***, ***StreamsCallback***, ***GetEventsCallback*** and ***GetStreamsCallback*** and in ***UINotifier*** by defining the ***notify*** function.
-
-Here is an example of callback definition that will trigger the Handler we configured previously to inform the user about the result of an Event creation:
+Here is an example of callback definition that will inform the user about the result of an Event creation by updating a TextView :
 
 ```java
 private EventsCallback eventsCallback = new EventsCallback() {
 	@Override
 	public void onApiSuccess(String s, Event event, String s1, Double aDouble) {
-		notifier.notify(s);
+		updateStatusText(s);
 		Log.i("Pryv", s);
 	}
 
 	@Override
 	public void onApiError(String s, Double aDouble) {
-		notifier.notify(s);
+		updateStatusText(s);
 		Log.e("Pryv", s);
 	}
 
 	@Override
 	public void onCacheSuccess(String s, Event event) {
-		notifier.notify(s);
+		updateStatusText(s);
 		Log.i("Pryv", s);
 	}
 
 	@Override
 	public void onCacheError(String s) {
-		notifier.notify(s);
+		updateStatusText(s);
 		Log.e("Pryv", s);
 	}
 };
 
-public void notify(String notification) {
-        if(notificationHandler!=null) {
-            Bundle b = new Bundle();
-            b.putString("content", notification);
-            Message msg = new Message();
-            msg.setData(b);
-            notificationHandler.sendMessage(msg);
-        }
-    }
+private void updateStatusText(final String text) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressView.setText(text);
+            }
+        });
+}
 ```
-_Notes: These callbacks, Handler and UINotifier may seem like a superfluous callback scheme but this is needed. In fact, Android verify that only the thread that created a View can modify it. The requests to Pryv API are excecuted in a different thread than the one handling the UI. Thus, we are using the Handler to make these two threads communicate._
+_Note that Android verify that only the thread that created a View can modify it. The requests to Pryv API are excecuted in a different thread than the one handling the UI. This is why we need to force the **updateStatusText** function to run on UI thread._
 
 ### Further explanations
 
