@@ -23,10 +23,6 @@ To use the example app in Android Studio, go to `File>open` and select the folde
 
 [Request it](mailto:tech@pryv.com)
 
-## License
-
-[Revised BSD license](https://github.com/pryv/documents/blob/master/license-bsd-revised.md)
-
 ## Quick integration with another existing Android app
 
 If you already developed your own Android app and you want to integrate Pryv into it, here is a concise procedure to setup the only elements that you will need and in the shortest time.
@@ -67,183 +63,47 @@ There is still few necessary additions to be made in your ***MainActivity***.
 First of all, you need to initialize the connection by providing the credentials previously stored during the login phase:
 ```java
 Credentials credentials = new Credentials(MainActivity.this);
-Connection connection = new Connection(MainActivity.this, credentials.getUsername(), credentials.getToken(), LoginActivity.DOMAIN, true, new DBinitCallback());
+Connection connection = new Connection(credentials.getUsername(), credentials.getToken(), LoginActivity.DOMAIN);
 ```
 
-Setting the third parameter to true activate the cache. In this case, you also need to define the cache scope (i.e., set of cached streams) :
-```java
-Filter scope = new Filter();
-scope.addStream(cachedStream);
-connection.setupCacheScope(scope);
-```
+You can then follow the end of the [Getting-started:java guide](http://pryv.github.io/getting-started/java/#manage-events) in order to manage your Pryv resources.
 
-You can then use the following functions to manage your events and streams :
-
-***Create a Stream:***
-```java
-Stream containerStream = new Stream("StreamID", "StreamName");
-connection.streams.create(containerStream, new StreamsCallback() {
-
-            @Override
-            public void onApiSuccess(String s, Stream stream, Double aDouble) {
-                Log.i("Pryv", s);
-            }
-
-            @Override
-            public void onApiError(String s, Double aDouble) {
-                Log.e("Pryv", s);
-            }
-
-            @Override
-            public void onCacheSuccess(String s, Stream stream) {
-                Log.i("Pryv", s);
-            }
-
-            @Override
-            public void onCacheError(String s) {
-                Log.e("Pryv", s);
-            }
-
-        });
-```
-
-***Create an Event:***
-```java
-String streamId = "StreamID";
-String eventType = "note/txt";
-String content = "Some text";
-connection.events.create(new Event(streamId, eventType, content), new EventsCallback() {
-
-            @Override
-            public void onApiSuccess(String s, Event event, String s1, Double aDouble) {
-                notifier.notify(s);
-                Log.i("Pryv", s);
-            }
-
-            @Override
-            public void onApiError(String s, Double aDouble) {
-                notifier.notify(s);
-                Log.e("Pryv", s);
-            }
-
-            @Override
-            public void onCacheSuccess(String s, Event event) {
-                notifier.notify(s);
-                Log.i("Pryv", s);
-            }
-
-            @Override
-            public void onCacheError(String s) {
-                notifier.notify(s);
-                Log.e("Pryv", s);
-            }
-        });
-```
-
-***Get Events:***
-```java
-Stream containerStream = new Stream("StreamID", "StreamName");
-Filter filter = new Filter();
-filter.addStream(containerStream);
-connection.events.get(filter, new GetEventsCallback() {
-            @Override
-            public void cacheCallback(List<Event> list, Map<String, Double> map) {
-                Log.i("Pryv", list.size() + " events retrieved from cache.");
-            }
-
-            @Override
-            public void onCacheError(String s) {
-                Log.e("Pryv", s);
-            }
-
-            @Override
-            public void apiCallback(List<Event> list, Map<String, Double> map, Double aDouble) {
-                Log.i("Pryv", list.size() + " events retrieved from API.");
-            }
-
-            @Override
-            public void onApiError(String s, Double aDouble) {
-                Log.e("Pryv", s);
-            }
-        });
-```
-
-***Get Streams:***
-```java
-Stream parentStream = new Stream("StreamID", "StreamName");
-Filter filter = new Filter();
-filter.addStream(parentStream);
-connection.streams.get(filter, new GetStreamsCallback() {
-
-            @Override
-            public void cacheCallback(Map<String, Stream> map, Map<String, Double> map1) {
-                Log.i("Pryv", map.size() + " streams retrieved from cache.");
-            }
-
-            @Override
-            public void onCacheError(String s) {
-                Log.e("Pryv", s);
-            }
-
-            @Override
-            public void apiCallback(Map<String, Stream> map, Map<String, Double> map1, Double aDouble) {
-                Log.i("Pryv", map.size() + " streams retrieved from API.");
-            }
-
-            @Override
-            public void onApiError(String s, Double aDouble) {
-                Log.e("Pryv", s);
-            }
-        });
-```
-
-The callbacks ***EventsCallback***, ***StreamsCallback***, ***GetEventsCallback*** and ***GetStreamsCallback*** contain the code to excecute as soon as a request (Create, Get) completes (succeeds or fails).
-
-### UI notifications
-
-Creating Events is a first step but you surely want to inform the user when this is done.
-This can be done in your ***MainActivity*** by redefining the following callbacks: ***EventsCallback***, ***StreamsCallback***, ***GetEventsCallback*** and ***GetStreamsCallback***.
-
-Here is an example of callback definition that will inform the user about the result of an Event creation by updating a TextView :
+Note that Android enforces HTTP calls to the Pryv API (Get, Create, Update, Delete) to be executed in a different thread. Thus, you could encapsulate them in an AsyncTask or use the following basic alternative:
 
 ```java
-private EventsCallback eventsCallback = new EventsCallback() {
-	@Override
-	public void onApiSuccess(String s, Event event, String s1, Double aDouble) {
-		updateStatusText(s);
-		Log.i("Pryv", s);
+new Thread() {
+	public void run() {
+	    try {
+		Event newEvent = new Event()
+			.setStreamId(noteStream.getId())
+			.setType(NOTE_EVENT_TYPE)
+			.setContent(text);
+		newEvent = connection.events.create(newEvent);
+		updateStatusText("New event created with id: " + newEvent.getId());
+	    } catch (IOException e) {
+		updateStatusText(e.toString());
+	    }
 	}
+}.start();
+```
 
-	@Override
-	public void onApiError(String s, Double aDouble) {
-		updateStatusText(s);
-		Log.e("Pryv", s);
-	}
+In the same spirit, Android also verify that only the thread that created a View can modify it. Thus, if we want our **updateStatusText** function to update the UI, we have to force it to run on the UI thread in the following way:
 
-	@Override
-	public void onCacheSuccess(String s, Event event) {
-		updateStatusText(s);
-		Log.i("Pryv", s);
-	}
-
-	@Override
-	public void onCacheError(String s) {
-		updateStatusText(s);
-		Log.e("Pryv", s);
-	}
-};
-
+```java
 private void updateStatusText(final String text) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                progressView.setText(text);
-            }
-        });
+	runOnUiThread(new Runnable() {
+	    @Override
+	    public void run() {
+		progressView.setText(text);
+	    }
+	});
 }
 ```
-_Note that Android verify that only the thread that created a View can modify it. The requests to Pryv API are excecuted in a different thread than the one handling the UI. This is why we need to force the **updateStatusText** function to run on UI thread._
 
 ### Further explanations
 
 If you still have misunderstandings when integrating Pryv into your app or if you want to see more concrete examples, do not hesitate to take a look at the sample [MainActivity](https://github.com/pryv/app-android-example/blob/master/app/src/main/java/com/pryv/appAndroidExample/MainActivity.java).
+
+## License
+
+[Revised BSD license](https://github.com/pryv/documents/blob/master/license-bsd-revised.md)
