@@ -2,10 +2,7 @@ package com.pryv.appAndroidExample;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
@@ -13,22 +10,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.pryv.Connection;
-import com.pryv.Filter;
-import com.pryv.Pryv;
-import com.pryv.database.DBinitCallback;
-import com.pryv.interfaces.EventsCallback;
-import com.pryv.interfaces.GetEventsCallback;
-import com.pryv.interfaces.GetStreamsCallback;
-import com.pryv.interfaces.StreamsCallback;
 import com.pryv.model.Event;
+import com.pryv.model.Filter;
 import com.pryv.model.Stream;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Main screen allowing to create note events to your Pryv
@@ -57,10 +47,6 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> retrievedEvents;
 
     private Connection connection;
-    private EventsCallback eventsCallback;
-    private GetEventsCallback getEventsCallback;
-    private StreamsCallback streamsCallback;
-    private GetStreamsCallback getStreamsCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,13 +77,26 @@ public class MainActivity extends AppCompatActivity {
      */
     public void addNote(View v) {
         if(credentials.hasCredentials()) {
-            String text = noteText.getText().toString();
+            final String text = noteText.getText().toString();
             if(!text.isEmpty()) {
                 if(text.length()>20) {
                     progressView.setText(TOO_LONG_ERROR);
                 } else {
                     noteText.setText("");
-                    connection.events.create(new Event(noteStream.getId(), NOTE_EVENT_TYPE, text), eventsCallback);
+                    new Thread() {
+                        public void run() {
+                            try {
+                                Event newEvent = new Event()
+                                        .setStreamId(noteStream.getId())
+                                        .setType(NOTE_EVENT_TYPE)
+                                        .setContent(text);
+                                newEvent = connection.events.create(newEvent);
+                                updateStatusText("New event created with id: " + newEvent.getId());
+                            } catch (IOException e) {
+                                updateStatusText(e.toString());
+                            }
+                        }
+                    }.start();
                 }
             } else {
                 progressView.setText(TOO_SHORT_ERROR);
@@ -113,9 +112,17 @@ public class MainActivity extends AppCompatActivity {
      */
     public void retrieveNotes(View v) {
         if(credentials.hasCredentials()) {
-            Filter filter = new Filter();
-            filter.addStream(noteStream);
-            connection.events.get(filter, getEventsCallback);
+            new Thread() {
+                public void run() {
+                    try {
+                        Filter filter = new Filter().addStream(noteStream);
+                        List<Event> retrievedEvents = connection.events.get(filter);
+                        updateEventsList(retrievedEvents);
+                    } catch (IOException e) {
+                        updateStatusText(e.toString());
+                    }
+                }
+            }.start();
         } else {
             startLogin();
         }
@@ -127,15 +134,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initPryvConnection() {
-        setCallbacks();
         // Initiate new connection to Pryv with connected account
-        connection = new Connection(MainActivity.this, credentials.getUsername(), credentials.getToken(), LoginActivity.DOMAIN, true, new DBinitCallback());
+        connection = new Connection(credentials.getUsername(), credentials.getToken(), LoginActivity.DOMAIN);
         // Initiate a "Notes" stream containing notes if not already created
-        noteStream = new Stream(NOTE_STREAM_ID, NOTE_STREAM_NAME);
-        Filter scope = new Filter();
-        scope.addStream(noteStream);
-        connection.setupCacheScope(scope);
-        connection.streams.create(noteStream, streamsCallback);
+        noteStream = new Stream()
+            .setId(NOTE_STREAM_ID)
+            .setName(NOTE_STREAM_NAME);
+
+        new Thread() {
+            public void run() {
+                try {
+                    Stream createdStream = connection.streams.create(noteStream);
+                    updateStatusText("Stream created with id: " + createdStream.getId());
+                } catch (IOException e) {
+                    updateStatusText(e.toString());
+                }
+            }
+        }.start();
     }
 
     private void setLoginView() {
@@ -177,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 ArrayList<String> eventsContent = new ArrayList<>();
                 for(Event e: events) {
-                    eventsContent.add((String)e.getContent());
+                    eventsContent.add(""+e.getContent());
                 }
                 retrievedEvents.clear();
                 retrievedEvents.addAll(eventsContent);
@@ -194,117 +209,6 @@ public class MainActivity extends AppCompatActivity {
                 progressView.setText(text);
             }
         });
-    }
-
-    /**
-     * Initiate custom callbacks
-     */
-    private void setCallbacks() {
-
-        //Called when actions related to events creation/modification complete
-        eventsCallback = new EventsCallback() {
-
-            @Override
-            public void onApiSuccess(String s, Event event, String s1, Double aDouble) {
-                updateStatusText(s);
-                Log.i("Pryv", s);
-            }
-
-            @Override
-            public void onApiError(String s, Double aDouble) {
-                updateStatusText(s);
-                Log.e("Pryv", s);
-            }
-
-            @Override
-            public void onCacheSuccess(String s, Event event) {
-                updateStatusText(s);
-                Log.i("Pryv", s);
-            }
-
-            @Override
-            public void onCacheError(String s) {
-                updateStatusText(s);
-                Log.e("Pryv", s);
-            }
-        };
-
-        //Called when actions related to streams creation/modification complete
-        streamsCallback = new StreamsCallback() {
-
-            @Override
-            public void onApiSuccess(String s, Stream stream, Double aDouble) {
-                Log.i("Pryv", s);
-            }
-
-            @Override
-            public void onApiError(String s, Double aDouble) {
-                Log.e("Pryv", s);
-            }
-
-            @Override
-            public void onCacheSuccess(String s, Stream stream) {
-                Log.i("Pryv", s);
-            }
-
-            @Override
-            public void onCacheError(String s) {
-                Log.e("Pryv", s);
-            }
-
-        };
-
-        //Called when actions related to events retrieval complete
-        getEventsCallback = new GetEventsCallback() {
-            @Override
-            public void cacheCallback(List<Event> list, Map<String, Double> map) {
-                updateEventsList(list);
-                Log.i("Pryv", list.size() + " events retrieved from cache.");
-            }
-
-            @Override
-            public void onCacheError(String s) {
-                updateStatusText(s);
-                Log.e("Pryv", s);
-            }
-
-            @Override
-            public void apiCallback(List<Event> list, Map<String, Double> map, Double aDouble) {
-                updateEventsList(list);
-                Log.i("Pryv", list.size() + " events retrieved from API.");
-            }
-
-            @Override
-            public void onApiError(String s, Double aDouble) {
-                updateStatusText(s);
-                Log.e("Pryv", s);
-            }
-        };
-
-        //Called when actions related to streams retrieval complete
-        getStreamsCallback = new GetStreamsCallback() {
-
-            @Override
-            public void cacheCallback(Map<String, Stream> map, Map<String, Double> map1) {
-                Log.i("Pryv", map.size() + " streams retrieved from cache.");
-            }
-
-            @Override
-            public void onCacheError(String s) {
-                Log.e("Pryv", s);
-            }
-
-            @Override
-            public void apiCallback(Map<String, Stream> map, Map<String, Double> map1, Double aDouble) {
-                Log.i("Pryv", map.size() + " streams retrieved from API.");
-            }
-
-            @Override
-            public void onApiError(String s, Double aDouble) {
-                Log.e("Pryv", s);
-            }
-        };
-
     }
 
 }

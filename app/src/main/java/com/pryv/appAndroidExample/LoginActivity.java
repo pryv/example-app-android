@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import com.pryv.Pryv;
 import com.pryv.auth.AuthController;
@@ -83,6 +84,7 @@ public class LoginActivity extends Activity {
                 webView.requestFocus(View.FOCUS_DOWN);
                 webView.getSettings().setJavaScriptEnabled(true);
                 webView.getSettings().setUseWideViewPort(true);
+                webView.setWebViewClient(new WebViewClient());
                 webView.loadUrl(webViewUrl);
             } else {
                 new AlertDialog.Builder(LoginActivity.this)
