@@ -73,16 +73,7 @@ Note that Android enforces HTTP calls to the Pryv API (Get, Create, Update, Dele
 ```java
 new Thread() {
 	public void run() {
-	    try {
-		Event newEvent = new Event()
-			.setStreamId(noteStream.getId())
-			.setType(NOTE_EVENT_TYPE)
-			.setContent(text);
-		newEvent = connection.events.create(newEvent);
-		updateStatusText("New event created with id: " + newEvent.getId());
-	    } catch (IOException e) {
-		updateStatusText(e.toString());
-	    }
+	    // Do you HTTP calls to the Pryv API here (Get, Create, Update, Delete)
 	}
 }.start();
 ```
