@@ -95,6 +95,10 @@ private void updateStatusText(final String text) {
 
 If you still have misunderstandings when integrating Pryv into your app or if you want to see more concrete examples, do not hesitate to take a look at the sample [MainActivity](https://github.com/pryv/app-android-example/blob/master/app/src/main/java/com/pryv/appAndroidExample/MainActivity.java).
 
+## Support and warranty
+
+Pryv provides this software for educational and demonstration purposes with no support or warranty.
+
 ## License
 
 [Revised BSD license](https://github.com/pryv/documents/blob/master/license-bsd-revised.md)
