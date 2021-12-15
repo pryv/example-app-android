@@ -13,7 +13,7 @@ After signing in your account the app is able to fetch all Events from a Stream 
 
 ## Usage
 
-Get the code `git clone https://github.com/pryv/android-app-example`
+Get the code `git clone https://github.com/pryv/example-app-android`
 
 ### Android studio
 
